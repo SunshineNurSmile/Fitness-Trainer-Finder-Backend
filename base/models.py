@@ -49,6 +49,7 @@ class UserProfile(models.Model):
     height = models.DecimalField(max_digits=100, decimal_places=1, null=True, blank=True)
     weight = models.DecimalField(max_digits=100, decimal_places=1, null=True, blank=True)
     training_style = models.CharField(max_length=50, default='PowerLifting')
+    senior_type = models.CharField(max_length=50, default='PowerLifting')
     dob = models.DateField(default=date.today)
     gender = models.CharField(max_length=6, default="Male")
     _id = models.AutoField(primary_key=True, editable=False)
