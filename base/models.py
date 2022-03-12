@@ -53,7 +53,6 @@ class UserProfile(models.Model):
     dob = models.DateField(default=date.today)
     gender = models.CharField(max_length=6, default="Male")
     _id = models.AutoField(primary_key=True, editable=False)
-    age = models.PositiveIntegerField(default=10, validators=[MinValueValidator(1), MaxValueValidator(100)])
     description = models.TextField(null=True, blank=True)
 
     def __str__(self):
