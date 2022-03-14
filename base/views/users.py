@@ -122,6 +122,7 @@ def updateUserProfile(request, pk):
     user_profile.weight = data['weight']
     user_profile.training_style = data['training_style']
     user_profile.gender = data['gender']
+    user_profile.description = data['description']
 
     user_profile.save()
 
