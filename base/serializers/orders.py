@@ -15,41 +15,15 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    orderItems = serializers.SerializerMethodField(read_only=True)
-    BillingAddress = serializers.SerializerMethodField(read_only=True)
     user = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Order
         fields = '__all__'
 
-    def get_orderItems(self, obj):
-        items = obj.orderitem_set.all()
-        serializer = OrderItemSerializer(items, many=True)
-        return serializer.data
-
-    def get_BillingAddress(self, obj):
-        try:
-            address = BillingAddressSerializer(obj.billing_address, many=False)
-        except:
-            address = False
-        return address
-
     def get_user(self, obj):
-        trainee = obj.user.trainee
-        serializer = TraineeSerializer(trainee, many=False)
+        user = obj.user
+        serializer = TraineeSerializer(user, many=False)
         return serializer.data
-
-
-class OrderItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = '__all__'
-
-
-class BillingAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BillingAddress
-        fields = '__all__'
 
 
