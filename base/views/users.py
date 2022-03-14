@@ -11,15 +11,17 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 
-from base.models import UserProfile
-from base.serializer import UserProfileSerializer, UserSerializer, UserSerializerWithToken
+from base.models import Trainee, Trainer
 
 from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 
+from base.serializers.users import TraineeSerializer, UserSerializerWithToken, UserSerializerWithTrainee
+
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
-user_response = openapi.Response('response description', UserSerializer)
-user_profile_response = openapi.Response('response description', UserProfileSerializer)
+user_response = openapi.Response('response description', UserSerializerWithTrainee)
+trainee_response = openapi.Response('response description', TraineeSerializer)
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -38,13 +40,20 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class TraineeList(generics.ListAPIView):
+    queryset = Trainee.objects.all()
+    serializer_class = UserSerializerWithTrainee
     permission_classes = [IsAdminUser]
 
+# TODO
 
-@swagger_auto_schema(methods=['post'], request_body=UserSerializer)
+# class TrainerList(generics.ListAPIView):
+#     queryset = Trainer.objects.all()
+#     serializer_class = TrainerSerializer
+#     permission_classes = [IsAdminUser]
+
+
+@swagger_auto_schema(methods=['post'], request_body=UserSerializerWithTrainee)
 @api_view(['POST'])
 def registerUser(request):
     data = request.data
@@ -86,20 +95,20 @@ def registerUser(request):
 @swagger_auto_schema(methods=['get'], responses={200: user_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getUserProfile(request):
+def getTrainee(request):
     user = request.user
-    serializer = UserSerializer(user, many=False)
+    serializer = UserSerializerWithTrainee(user, many=False)
     return Response(serializer.data)
 
 
-@swagger_auto_schema(methods=['post'], request_body=UserSerializer)
+@swagger_auto_schema(methods=['post'], request_body=TraineeSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def createProfile(request):
+def createTrainee(request):
     user = request.user
     data = request.data
 
-    user_profile = UserProfile.objects.create(
+    Trainee.objects.create(
         user=user,
         height=data['height'],
         weight=data['weight'],
@@ -107,26 +116,26 @@ def createProfile(request):
         dob=data['dob'],
         gender=data['gender'],
     )
-    serializer = UserSerializer(user, many=False)
+    serializer = UserSerializerWithTrainee(user, many=False)
     return Response(serializer.data)
 
 
 @swagger_auto_schema(methods=['put'], manual_parameters=[param_id], responses={201: 'Profile updated'})
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def updateUserProfile(request, pk):
-    user_profile = UserProfile.objects.get(user_id=pk)
+def updateTrainee(request, pk):
+    trainee = Trainee.objects.get(user_id=pk)
 
     data = request.data
-    user_profile.height = data['height']
-    user_profile.weight = data['weight']
-    user_profile.training_style = data['training_style']
-    user_profile.gender = data['gender']
-    user_profile.description = data['description']
+    trainee.height = data['height']
+    trainee.weight = data['weight']
+    trainee.training_style = data['training_style']
+    trainee.gender = data['gender']
+    trainee.description = data['description']
 
-    user_profile.save()
+    trainee.save()
 
-    serializer = UserProfileSerializer(user_profile, many=False)
+    serializer = TraineeSerializer(trainee, many=False)
 
     return Response(serializer.data)
 

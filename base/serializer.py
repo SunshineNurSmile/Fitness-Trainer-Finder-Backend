@@ -4,47 +4,8 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # from backend.base.models import UserProfile
-from .models import Order, OrderItem, Review, BillingAddress, Trainer, UserProfile
-
-
-class UserSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField(read_only=True)
-    _id = serializers.SerializerMethodField(read_only=True)
-    isAdmin = serializers.SerializerMethodField(read_only=True)
-    user_profile = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = ['id', '_id', 'username', 'name', 'email', 'first_name', 'last_name', 'isAdmin', 'user_profile']
-
-    def get__id(self, obj):
-        return obj.id
-
-    def get_isAdmin(self, obj):
-        return obj.is_staff
-
-    def get_name(self, obj):
-        name = obj.first_name + ' ' + obj.last_name
-        if name == '':
-            name = obj.email
-
-        return name
-
-    def get_user_profile(self, obj):
-        serializer = UserProfileSerializer(obj.user_profile, many=False)
-        return serializer.data
-
-
-class UserSerializerWithToken(UserSerializer):
-    token = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = ['id', '_id', 'username', 'name', 'email', 'first_name', 'last_name', 'isAdmin', 'token']
-
-    def get_token(self, obj):
-        token = RefreshToken.for_user(obj)
-        return str(token.access_token)
+from .models import Order, OrderItem, Review, BillingAddress, Trainer, Trainee
+from .serializers.users import TraineeSerializer
 
 
 class TrainerSerializer(serializers.ModelSerializer):
@@ -89,8 +50,8 @@ class OrderSerializer(serializers.ModelSerializer):
         return address
 
     def get_user(self, obj):
-        user = obj.user
-        serializer = UserSerializer(user, many=False)
+        trainee = obj.user.trainee
+        serializer = TraineeSerializer(trainee, many=False)
         return serializer.data
 
 
@@ -106,7 +67,3 @@ class BillingAddressSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = '__all__'
