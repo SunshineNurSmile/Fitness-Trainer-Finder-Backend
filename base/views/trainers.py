@@ -1,5 +1,3 @@
-from django.contrib.auth.hashers import make_password
-from django.shortcuts import render
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -8,11 +6,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from rest_framework.status import HTTP_404_NOT_FOUND
 
 from base.models import Trainer, Review
 
-from base.serializer import ReviewSerializer, TrainerSerializer
+from base.serializers.orders import ReviewSerializer
+from base.serializers.users import TrainerSerializer
 
 param_keyword = openapi.Parameter('keyword', openapi.IN_QUERY, description="test manual param",
                                   type=openapi.TYPE_STRING)
@@ -56,7 +54,7 @@ def getTrainers(request):
 
 @swagger_auto_schema(methods=['get'], manual_parameters=[param_id], responses={200: trainer_response})
 @api_view(['GET'])
-def getTrainer(request, pk):
+def getTrainerById(request, pk):
     trainer = Trainer.objects.get(_id=pk)
     serializer = TrainerSerializer(trainer, many=False)
     return Response(serializer.data)
@@ -68,30 +66,6 @@ def getTopTrainers(request):
     trainers = Trainer.objects.filter(rating__gte=4).order_by('-rating')[0:5]
     serializer = TrainerSerializer(trainers, many=True)
     return Response(serializer.data)
-
-
-# TODO
-@swagger_auto_schema(methods=['post'], request_body=TrainerSerializer)
-@api_view(['POST'])
-@permission_classes([IsAdminUser])
-def createTrainer(request):
-    data = request.data
-
-    try:
-        trainer = Trainer.objects.create(
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-            price=data['price'],
-            qty=data['qty'],
-            countInStock=data['countInStock'],
-            training_style=data['training_style'],
-            category='Sample Category',
-            description=data['description']
-        )
-        serializer = TrainerSerializer(trainer, many=False)
-        return Response(serializer.data)
-    except:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @swagger_auto_schema(methods=['put', 'patch'], manual_parameters=[param_id], responses={200: 'Image was uploaded'})

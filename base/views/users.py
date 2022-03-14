@@ -16,10 +16,13 @@ from base.models import Trainee, Trainer
 from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 
-from base.serializers.users import TraineeSerializer, UserSerializerWithToken, UserSerializerWithTrainee
+from base.serializers.users import TraineeSerializer, TrainerSerializer, UserSerializerWithToken, \
+    UserSerializerWithTrainee, \
+    UserSerializerWithTrainer
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
-user_response = openapi.Response('response description', UserSerializerWithTrainee)
+user_trainee_response = openapi.Response('response description', UserSerializerWithTrainee)
+user_trainer_response = openapi.Response('response description', UserSerializerWithTrainer)
 trainee_response = openapi.Response('response description', TraineeSerializer)
 
 
@@ -45,12 +48,11 @@ class TraineeList(generics.ListAPIView):
     serializer_class = UserSerializerWithTrainee
     permission_classes = [IsAdminUser]
 
-# TODO
 
-# class TrainerList(generics.ListAPIView):
-#     queryset = Trainer.objects.all()
-#     serializer_class = TrainerSerializer
-#     permission_classes = [IsAdminUser]
+class TrainerList(generics.ListAPIView):
+    queryset = Trainer.objects.all()
+    serializer_class = TrainerSerializer
+    permission_classes = [IsAdminUser]
 
 
 @swagger_auto_schema(methods=['post'], request_body=UserSerializerWithTrainee)
@@ -92,7 +94,7 @@ def registerUser(request):
 
 # TODO
 # update response
-@swagger_auto_schema(methods=['get'], responses={200: user_response})
+@swagger_auto_schema(methods=['get'], responses={200: user_trainee_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getTrainee(request):
@@ -139,5 +141,54 @@ def updateTrainee(request, pk):
 
     return Response(serializer.data)
 
+
+# TODO
+# update response
+@swagger_auto_schema(methods=['get'], responses={200: user_trainer_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTrainer(request):
+    user = request.user
+    serializer = UserSerializerWithTrainer(user, many=False)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['post'], request_body=TrainerSerializer)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createTrainer(request):
+    user = request.user
+    data = request.data
+
+    Trainer.objects.create(
+        user=user,
+        price=data['price'],
+        training_style=data['training_style'],
+        description=data['description'],
+        gender=data['gender'],
+        dob=data['dob']
+    )
+    serializer = UserSerializerWithTrainer(user, many=False)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['put'], manual_parameters=[param_id], responses={201: 'Profile updated'})
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateTrainer(request, pk):
+    trainer = Trainer.objects.get(user_id=pk)
+
+    data = request.data
+    trainer.height = data['height']
+    trainer.weight = data['weight']
+    trainer.training_style = data['training_style']
+    trainer.gender = data['gender']
+    trainer.description = data['description']
+
+    trainer.save()
+
+    serializer = TrainerSerializer(trainer, many=False)
+
+    return Response(serializer.data)
 
 

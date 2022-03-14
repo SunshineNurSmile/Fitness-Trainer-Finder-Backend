@@ -1,19 +1,14 @@
-from django.contrib.auth.hashers import make_password
-from django.shortcuts import render
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from rest_framework.status import *
 
-from base.models import Order, OrderItem, BillingAddress, Trainer, Review
+from base.models import Order
 
-from rest_framework import status
-
-from base.serializer import TrainerSerializer, OrderSerializer
+from base.serializers.orders import OrderSerializer
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 order_response = openapi.Response('response description', OrderSerializer)
@@ -61,53 +56,25 @@ orders_response = openapi.Response('response description', OrderSerializer(many=
 @swagger_auto_schema(methods=['post'], request_body=OrderSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def addOrderItems(request):
-    user = request.user
+def createOrder(request):
+    # to get trainee from access token
+    trainee = request.user
     data = request.data
-    orderItems = data['orderItems']
 
-    if orderItems and len(orderItems) == 0:
-        return Response({'detail': 'No order items'}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        # (1) create order
+    try:
         order = Order.objects.create(
-            user=user,
+            trainee=trainee,
+            trainer=data['trainer'],
             paymentMethod=data['paymentMethod'],
             taxPrice=data['taxPrice'],
             shippingPrice=data['shippingPrice'],
             totalPrice=data['totalPrice']
         )
-
-        # (2) Create shipping address
-
-        shipping = BillingAddress.objects.create(
-            order=order,
-            address=data['billingAddress']['address'],
-            city=data['billingAddress']['city'],
-            postalCode=data['billingAddress']['postalCode'],
-            country=data['billingAddress']['country'],
-        )
-
-        # (3) Create order items adn set order to orderItem relationship
-        for i in orderItems:
-            trainer = Trainer.objects.get(_id=i['trainer'])
-
-            item = OrderItem.objects.create(
-                trainer=trainer,
-                order=order,
-                name=trainer.first_name,
-                qty=i['qty'],
-                price=i['price'],
-                image=trainer.image.url,
-            )
-
-            # (4) Update stock
-
-            trainer.countInStock -= item.qty
-            trainer.save()
-
         serializer = OrderSerializer(order, many=False)
         return Response(serializer.data)
+    except:
+        return Response(status=HTTP_400_BAD_REQUEST)
+
 
 
 # TODO
@@ -129,8 +96,8 @@ def getOrderById(request, pk):
 
 
 # TODO
-@swagger_auto_schema(methods=['put', 'patch'], manual_parameters=[param_id], responses={200: 'Order was paid'})
-@api_view(['PATCH', 'PUT'])
+@swagger_auto_schema(methods=['put'], manual_parameters=[param_id], responses={200: 'Order was paid'})
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateOrderToPaid(request, pk):
     order = Order.objects.get(_id=pk)
@@ -144,7 +111,6 @@ def updateOrderToPaid(request, pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getMyOrders(request):
-
     user = request.user
 
     order = user.order_set.all()
@@ -152,4 +118,3 @@ def getMyOrders(request):
         return Response({'detail': 'Order does not exists'}, status=HTTP_404_NOT_FOUND)
     serializer = OrderSerializer(order, many=True)
     return Response(serializer.data)
-

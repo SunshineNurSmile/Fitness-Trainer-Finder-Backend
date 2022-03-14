@@ -1,12 +1,11 @@
 from django.contrib.auth.models import User
-from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # from backend.base.models import UserProfile
-from ..models import Order, OrderItem, Review, BillingAddress, Trainer, Trainee
+from ..models import Trainer, Trainee
+from base.serializers.orders import ReviewSerializer
 
-# TODO - create Trainers
 
 class UserSerializerWithTrainee(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
@@ -16,9 +15,9 @@ class UserSerializerWithTrainee(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', '_id', 'username', 'name', 'email', 'first_name', 'last_name', 'isAdmin', 'trainee']
+        fields = ['id', 'username', 'name', 'email', 'first_name', 'last_name', 'isAdmin', 'trainee']
 
-    def get__id(self, obj):
+    def get_user_id(self, obj):
         return obj.id
 
     def get_isAdmin(self, obj):
@@ -36,7 +35,34 @@ class UserSerializerWithTrainee(serializers.ModelSerializer):
         return serializer.data
 
 
-class UserSerializerWithToken(UserSerializerWithTrainee):
+class UserSerializerWithTrainer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField(read_only=True)
+    isAdmin = serializers.SerializerMethodField(read_only=True)
+    trainer = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'name', 'email', 'first_name', 'last_name', 'isAdmin', 'trainer']
+
+    def get_user_id(self, obj):
+        return obj.id
+
+    def get_isAdmin(self, obj):
+        return obj.is_staff
+
+    def get_name(self, obj):
+        name = obj.first_name + ' ' + obj.last_name
+        if name == '':
+            name = obj.email
+
+        return name
+
+    def get_trainer(self, obj):
+        serializer = TrainerSerializer(obj.trainer, many=False)
+        return serializer.data
+
+
+class UserSerializerWithToken(UserSerializerWithTrainee, UserSerializerWithTrainer):
     token = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -52,3 +78,17 @@ class TraineeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trainee
         fields = '__all__'
+
+
+class TrainerSerializer(serializers.ModelSerializer):
+    reviews = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Trainer
+        fields = '__all__'
+
+    def get_reviews(self, obj):
+        # TODO review
+        reviews = obj.review_set.all()
+        serializer = ReviewSerializer(reviews, many=True)
+        return serializer.data

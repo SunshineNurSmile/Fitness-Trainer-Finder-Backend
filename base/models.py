@@ -1,4 +1,3 @@
-import decimal
 from datetime import date
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -31,24 +30,28 @@ class Trainee(models.Model):
 
 
 class Trainer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    first_name = models.CharField(max_length=200, null=True, blank=True)
-    last_name = models.CharField(max_length=200, null=True, blank=True)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='trainer'
+    )
     image = models.ImageField(null=True, blank=True,
                               default='/placeholder.png')
     training_style = models.CharField(max_length=50, default='PowerLifting')
     # TODO
     # create trainers course and category needs to search trainer
-    category = models.CharField(max_length=200, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     rating = models.DecimalField(
         max_digits=7, decimal_places=2, null=True, blank=True)
+    dob = models.DateField(default=date.today)
+    gender = models.CharField(max_length=6, default="Male")
     numReviews = models.IntegerField(null=True, blank=True, default=0)
     price = models.DecimalField(
         max_digits=7, decimal_places=2, null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     _id = models.AutoField(primary_key=True, editable=False)
-    countInStock = models.IntegerField(null=True, blank=True, default=0)
 
     def __str__(self):
         return str(self.user)
@@ -56,7 +59,7 @@ class Trainer(models.Model):
 
 class Review(models.Model):
     trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    trainee = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=200, null=True, blank=True)
     rating = models.IntegerField(default=0, blank=True, null=True)
     comment = models.TextField(null=True, blank=True)
@@ -68,7 +71,8 @@ class Review(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    trainee = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
+    trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
     paymentMethod = models.CharField(max_length=200, null=True, blank=True)
     taxPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     totalPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)

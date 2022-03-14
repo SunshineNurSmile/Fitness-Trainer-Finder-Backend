@@ -4,22 +4,8 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # from backend.base.models import UserProfile
-from .models import Order, OrderItem, Review, BillingAddress, Trainer, Trainee
-from .serializers.users import TraineeSerializer
-
-
-class TrainerSerializer(serializers.ModelSerializer):
-    reviews = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = Trainer
-        fields = '__all__'
-
-    def get_reviews(self, obj):
-        # TODO review
-        reviews = obj.review_set.all()
-        serializer = ReviewSerializer(reviews, many=True)
-        return serializer.data
+from base.models import Order, Review
+from base.serializers.users import *
 
 
 class ReviewSerializer(serializers.ModelSerializer):
