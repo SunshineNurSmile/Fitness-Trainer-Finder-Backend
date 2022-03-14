@@ -111,8 +111,8 @@ def createProfile(request):
     return Response(serializer.data)
 
 
-@swagger_auto_schema(methods=['put', 'patch'], manual_parameters=[param_id], responses={201: 'Profile updated'})
-@api_view(['PUT', 'PATCH'])
+@swagger_auto_schema(methods=['put'], manual_parameters=[param_id], responses={201: 'Profile updated'})
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateUserProfile(request, pk):
     user_profile = UserProfile.objects.get(user_id=pk)
