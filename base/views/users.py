@@ -115,15 +115,14 @@ def createProfile(request):
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def updateUserProfile(request, pk):
-    user_profile = UserProfile.objects.get(_id=pk)
+    user_profile = UserProfile.objects.get(user_id=pk)
 
     data = request.data
-
-    user_profile.height = data['height'],
-    user_profile.weight = data['weight'],
-    user_profile.training_style = data['training_style'],
-    user_profile.dob = data['dob'],
-    user_profile.gender = data['gender'],
+    user_profile.height = data['height']
+    user_profile.weight = data['weight']
+    user_profile.training_style = data['training_style']
+    user_profile.dob = data['dob']
+    user_profile.gender = data['gender']
 
     user_profile.save()
 

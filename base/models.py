@@ -1,3 +1,4 @@
+import decimal
 from datetime import date
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -46,8 +47,8 @@ class Review(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE, related_name="user_profile")
-    height = models.DecimalField(max_digits=100, decimal_places=1, null=True, blank=True)
-    weight = models.DecimalField(max_digits=100, decimal_places=1, null=True, blank=True)
+    height = models.DecimalField(max_digits=100, decimal_places=1, default=decimal.Decimal(0))
+    weight = models.DecimalField(max_digits=100, decimal_places=1, default=decimal.Decimal(0))
     training_style = models.CharField(max_length=50, default='PowerLifting')
     senior_type = models.CharField(max_length=50, default='PowerLifting')
     dob = models.DateField(default=date.today)

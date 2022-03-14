@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('paidAt', models.DateTimeField(blank=True, null=True)),
                 ('isDelivered', models.BooleanField(default=False)),
                 ('deliveredAt', models.DateTimeField(blank=True, null=True)),
-                ('createdAt', modelｓs.DateTimeField(auto_now_add=True)),
+                ('createdAt', models.DateTimeField(auto_now_add=True)),
                 ('_id', models.AutoField(editable=False, primary_key=True, serialize=False)),
                 ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
             ],
