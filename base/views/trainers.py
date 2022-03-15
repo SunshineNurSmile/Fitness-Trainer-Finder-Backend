@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from base.models import Trainer, Review
+from base.models import Trainee, Trainer, Review
 from base.serializers import ReviewSerializer, TrainerSerializer
 
 param_keyword = openapi.Parameter('keyword', openapi.IN_QUERY, description="test manual param",
@@ -45,7 +45,6 @@ def getTrainers(request):
         page = 1
 
     page = int(page)
-    print('Page:', page)
     serializer = TrainerSerializer(trainers, many=True)
     return Response({'trainers': serializer.data, 'page': page, 'pages': paginator.num_pages})
 
@@ -87,22 +86,22 @@ def deleteTrainer(request, pk):
 @swagger_auto_schema(methods=['post'], manual_parameters=[param_id], request_body=ReviewSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def createTrainerReview(request):
+def createTrainerReview(request, pk):
     data = request.data
-    user = request.user
-    trainer = request.trainer
+    # to get trainee from access token
+    trainee_id = request.user.id
+    trainee = Trainee.objects.get(_id=trainee_id)
+    trainer = Trainer.objects.get(_id=pk)
 
-    if trainer.review_set.filter(user=user).exits():
-        return Response({'detail': 'This trainer is already reviewed'})
-
+    if trainer.review_set.filter(trainee=trainee).first():
+        return Response({'detail': 'This trainer is already reviewed'}, status=status.HTTP_400_BAD_REQUEST)
     elif data['rating'] is None:
-        return Response({'detail': 'Please select rating'})
-
+        return Response({'detail': 'Please select rating'}, status=status.HTTP_400_BAD_REQUEST)
     else:
-        review = Review.objects.create(
-            user=user,
+        Review.objects.create(
+            trainee=trainee,
             trainer=trainer,
-            name=user.first_name,
+            name=trainee.user.username,
             rating=data['rating'],
             comment=data['comment'],
         )
@@ -110,8 +109,11 @@ def createTrainerReview(request):
         reviews = trainer.review_set.all()
         trainer.numReviews = len(reviews)
 
-        rating = sum(reviews)/len(reviews)
-        trainer.rating = rating
+        total = 0
+        for i in reviews:
+            total += i.rating
+
+        trainer.rating = total/len(reviews)
         trainer.save()
 
         return Response({'Review Add'})
