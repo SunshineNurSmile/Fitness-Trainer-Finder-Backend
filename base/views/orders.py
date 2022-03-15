@@ -6,9 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import *
 
-from base.models import Order
+from base.models import Order, Trainee, Trainer
 
-from base.serializers.orders import OrderSerializer
+from base.serializers import OrderSerializer
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 order_response = openapi.Response('response description', OrderSerializer)
@@ -58,22 +58,24 @@ orders_response = openapi.Response('response description', OrderSerializer(many=
 @permission_classes([IsAuthenticated])
 def createOrder(request):
     # to get trainee from access token
-    trainee = request.user
+    trainee_id = request.user.id
+    trainee = Trainee.objects.get(_id=trainee_id)
     data = request.data
+    trainer_id = request.data['trainer_id']
+    trainer = Trainer.objects.get(_id=trainer_id)
 
-    try:
-        order = Order.objects.create(
-            trainee=trainee,
-            trainer=data['trainer'],
-            paymentMethod=data['paymentMethod'],
-            taxPrice=data['taxPrice'],
-            shippingPrice=data['shippingPrice'],
-            totalPrice=data['totalPrice']
-        )
-        serializer = OrderSerializer(order, many=False)
-        return Response(serializer.data)
-    except:
-        return Response(status=HTTP_400_BAD_REQUEST)
+    # try:
+    order = Order.objects.create(
+        trainee=trainee,
+        trainer=trainer,
+        paymentMethod=data['paymentMethod'],
+        taxPrice=data['taxPrice'],
+        totalPrice=data['totalPrice']
+    )
+    serializer = OrderSerializer(order, many=False)
+    return Response(serializer.data)
+    # except:
+    #     return Response(status=HTTP_400_BAD_REQUEST)
 
 
 

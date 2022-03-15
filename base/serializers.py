@@ -3,8 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # from backend.base.models import UserProfile
-from ..models import Trainer, Trainee
-from base.serializers.orders import ReviewSerializer
+from .models import Order, Review, Trainer, Trainee
 
 
 class UserSerializerWithTrainee(serializers.ModelSerializer):
@@ -90,4 +89,29 @@ class TrainerSerializer(serializers.ModelSerializer):
         # TODO review
         reviews = obj.review_set.all()
         serializer = ReviewSerializer(reviews, many=True)
+        return serializer.data
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    trainee = serializers.SerializerMethodField(read_only=True)
+    trainer = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+    def get_trainee(self, obj):
+        trainee = obj.trainee
+        serializer = TraineeSerializer(trainee, many=False)
+        return serializer.data
+
+    def get_trainer(self, obj):
+        trainer = obj.trainer
+        serializer = TrainerSerializer(trainer, many=False)
         return serializer.data
