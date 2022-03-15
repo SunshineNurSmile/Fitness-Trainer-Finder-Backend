@@ -9,7 +9,6 @@ from base.serializers.orders import ReviewSerializer
 
 class UserSerializerWithTrainee(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
-    _id = serializers.SerializerMethodField(read_only=True)
     isAdmin = serializers.SerializerMethodField(read_only=True)
     trainee = serializers.SerializerMethodField(read_only=True)
 
@@ -67,7 +66,7 @@ class UserSerializerWithToken(UserSerializerWithTrainee, UserSerializerWithTrain
 
     class Meta:
         model = User
-        fields = ['id', '_id', 'username', 'name', 'email', 'first_name', 'last_name', 'isAdmin', 'token']
+        fields = ['id', 'username', 'name', 'email', 'first_name', 'last_name', 'isAdmin', 'token']
 
     def get_token(self, obj):
         token = RefreshToken.for_user(obj)
