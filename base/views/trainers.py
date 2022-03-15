@@ -8,9 +8,7 @@ from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from base.models import Trainer, Review
-
-from base.serializers.orders import ReviewSerializer
-from base.serializers.users import TrainerSerializer
+from base.serializers import ReviewSerializer, TrainerSerializer
 
 param_keyword = openapi.Parameter('keyword', openapi.IN_QUERY, description="test manual param",
                                   type=openapi.TYPE_STRING)

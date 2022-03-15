@@ -11,13 +11,12 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 
-from base.models import Trainee, Trainer
+from ..models import Trainee, Trainer
 
 from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 
-from base.serializers.users import TraineeSerializer, TrainerSerializer, UserSerializerWithToken, \
-    UserSerializerWithTrainee, \
+from ..serializers import TraineeSerializer, TrainerSerializer, UserSerializerWithToken, UserSerializerWithTrainee, \
     UserSerializerWithTrainer
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
