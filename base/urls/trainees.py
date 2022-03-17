@@ -7,5 +7,5 @@ urlpatterns = [
     path('', views.getTrainee, name='trainee'),
     path('update/<str:pk>/', views.updateTrainee, name='trainee-update'),
     path('create', views.createTrainee, name='trainee-create'),
-    path('list/', views.TraineeList.as_view(), name='trainees'),
+    path('list/', views.AllTraineesList.as_view(), name='trainees')
 ]
