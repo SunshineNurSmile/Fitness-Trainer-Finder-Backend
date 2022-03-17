@@ -42,16 +42,16 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-class TraineeList(generics.ListAPIView):
+class AllTraineesList(generics.ListAPIView):
     queryset = Trainee.objects.all()
     serializer_class = TraineeSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
 
-class TrainerList(generics.ListAPIView):
+class AllTrainersList(generics.ListAPIView):
     queryset = Trainer.objects.all()
     serializer_class = TrainerSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
 
 @swagger_auto_schema(methods=['post'], request_body=UserSerializerWithTrainee)
