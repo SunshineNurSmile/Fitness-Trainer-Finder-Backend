@@ -8,7 +8,7 @@ urlpatterns = [
     path('', users_views.getTrainer, name='trainer'),
     path('update/<str:pk>/', users_views.updateTrainer, name='trainer-update'),
     path('create', users_views.createTrainer, name='trainer-create'),
-    path('list', users_views.TrainerList.as_view(), name='trainees'),
+    path('list', users_views.TrainerList.as_view(), name='trainers'),
 
     path('<str:pk>/reviews/', trainers_views.createTrainerReview, name="create-review"),
     path('top/', trainers_views.getTopTrainers, name='top-trainers'),
