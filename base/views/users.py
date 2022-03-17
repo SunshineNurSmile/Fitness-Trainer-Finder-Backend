@@ -45,7 +45,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 class TraineeList(generics.ListAPIView):
     queryset = Trainee.objects.all()
-    serializer_class = UserSerializerWithTrainee
+    serializer_class = TraineeSerializer
     permission_classes = [IsAdminUser]
 
 
