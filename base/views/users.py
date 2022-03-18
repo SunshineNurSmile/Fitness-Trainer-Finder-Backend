@@ -111,7 +111,8 @@ def createTrainee(request):
 
     Trainee.objects.create(
         user=user,
-        height=data['height'],
+        heightft=data['heightft'],
+        heightin=data['heightin'],
         weight=data['weight'],
         training_style=data['training_style'],
         dob=data['dob'],

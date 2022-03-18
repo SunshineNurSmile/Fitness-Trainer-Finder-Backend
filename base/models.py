@@ -17,8 +17,9 @@ class Trainee(models.Model):
         blank=True,
         related_name='trainee'
     )
-    height = models.CharField(max_length=5, null=True, blank=True)
-    weight = models.CharField(max_length=5, null=True, blank=True)
+    heightft = models.IntegerField(null=True, blank=True)
+    heightin = models.IntegerField(null=True, blank=True)
+    weight = models.IntegerField(null=True, blank=True)
     training_style = models.CharField(max_length=50, default='PowerLifting')
     dob = models.DateField(default=date.today)
     gender = models.CharField(max_length=6, default="Male")
