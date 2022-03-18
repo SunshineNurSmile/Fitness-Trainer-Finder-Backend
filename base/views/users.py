@@ -111,7 +111,8 @@ def createTrainee(request):
 
     Trainee.objects.create(
         user=user,
-        height=data['height'],
+        heightft=data['heightft'],
+        heightin=data['heightin'],
         weight=data['weight'],
         training_style=data['training_style'],
         dob=data['dob'],
@@ -133,6 +134,7 @@ def updateTrainee(request, pk):
     trainee.training_style = data['training_style']
     trainee.gender = data['gender']
     trainee.description = data['description']
+    trainee.avatar = data['avatar']
 
     trainee.save()
 
@@ -183,6 +185,7 @@ def updateTrainer(request, pk):
     trainer.training_style = data['training_style']
     trainer.gender = data['gender']
     trainer.description = data['description']
+    trainer.image = data['image']
 
     trainer.save()
 

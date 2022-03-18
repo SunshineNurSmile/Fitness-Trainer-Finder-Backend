@@ -17,13 +17,15 @@ class Trainee(models.Model):
         blank=True,
         related_name='trainee'
     )
-    height = models.DecimalField(max_digits=100, decimal_places=1, null=True, blank=True)
-    weight = models.DecimalField(max_digits=100, decimal_places=1, null=True, blank=True)
+    heightft = models.IntegerField(null=True, blank=True)
+    heightin = models.IntegerField(null=True, blank=True)
+    weight = models.IntegerField(null=True, blank=True)
     training_style = models.CharField(max_length=50, default='PowerLifting')
     dob = models.DateField(default=date.today)
     gender = models.CharField(max_length=6, default="Male")
     _id = models.AutoField(primary_key=True, editable=False)
     description = models.TextField(null=True, blank=True)
+    avatar = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return str(self.user)
@@ -37,8 +39,7 @@ class Trainer(models.Model):
         blank=True,
         related_name='trainer'
     )
-    image = models.ImageField(null=True, blank=True,
-                              default='/placeholder.png')
+    image = models.TextField(null=True, blank=True)
     training_style = models.CharField(max_length=50, default='PowerLifting')
     # TODO
     # create trainers course and category needs to search trainer

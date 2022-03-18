@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
 
     'rest_framework',
     "corsheaders",
@@ -162,14 +161,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-MEDIA_URL = '/images/'
+# MEDIA_URL = '/images/'
 
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'static'
+    BASE_DIR
 ]
 
-MEDIA_ROOT = "static/images"
+# MEDIA_ROOT = "static/images"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
