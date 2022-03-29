@@ -129,7 +129,8 @@ def updateTrainee(request, pk):
     trainee = Trainee.objects.get(user_id=pk)
 
     data = request.data
-    trainee.height = data['height']
+    trainee.heightft = data['heightft']
+    trainee.heightin = data['heightin']
     trainee.weight = data['weight']
     trainee.training_style = data['training_style']
     trainee.gender = data['gender']
