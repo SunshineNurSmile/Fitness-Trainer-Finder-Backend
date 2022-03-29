@@ -8,7 +8,7 @@ from rest_framework.status import *
 
 from base.models import Order, Trainee, Trainer
 
-from base.serializers import OrderSerializer
+from base.serializers import OrderSerializer, TrainerSerializer
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 order_response = openapi.Response('response description', OrderSerializer)
@@ -112,11 +112,37 @@ def updateOrderToPaid(request, pk):
 @swagger_auto_schema(methods=['get'], responses={200: orders_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getMyOrders(request):
-    user = request.user
-
-    order = user.order_set.all()
+def getMyOrders(request,pk):
+    obj = Trainee.objects.filter(_id=pk).first()
+    order = obj.order_set.all()
     if order is None:
-        return Response({'detail': 'Order does not exists'}, status=HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Order does not exist'}, status=HTTP_404_NOT_FOUND)
     serializer = OrderSerializer(order, many=True)
     return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['get'], responses={200: trainers_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getMyTrainers(request, pk):
+    a = []
+    b = []
+    obj = Order.objects.filter(trainee___id=pk).values('trainer')
+
+    for i in obj:
+        a.append(i['trainer'])
+    Items = set(a)
+    for i in Items:
+        b.append(i)
+    print(b)
+    for i in b:
+        trainer = Trainer.objects.filter().union(
+            Trainer.objects.filter(_id=i)
+        )
+        if obj is None:
+            return Response({'detail': 'Trainer does not exist'}, status=HTTP_404_NOT_FOUND)
+    serializer = TrainerSerializer(trainer, many=True)
+    return Response(serializer.data)
+
+
+
