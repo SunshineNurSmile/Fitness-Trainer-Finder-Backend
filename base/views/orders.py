@@ -13,6 +13,7 @@ from base.serializers import OrderSerializer, TrainerSerializer
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 order_response = openapi.Response('response description', OrderSerializer)
 orders_response = openapi.Response('response description', OrderSerializer(many=True))
+trainers_response = openapi.Response('response description', TrainerSerializer(many=True))
 
 
 # TODO
@@ -125,17 +126,9 @@ def getMyOrders(request,pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getMyTrainers(request, pk):
-    a = []
-    b = []
     obj = Order.objects.filter(trainee___id=pk).values('trainer')
-
-    for i in obj:
-        a.append(i['trainer'])
-    Items = set(a)
-    for i in Items:
-        b.append(i)
-    print(b)
-    for i in b:
+    list_trainers = list(set([ i['trainer'] for i in obj ]))
+    for i in list_trainers:
         trainer = Trainer.objects.filter().union(
             Trainer.objects.filter(_id=i)
         )
