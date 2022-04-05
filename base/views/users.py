@@ -167,7 +167,6 @@ def createTrainer(request):
     Trainer.objects.create(
         user=user,
         training_style=data['training_style'],
-        description=data['description'],
         gender=data['gender'],
         dob=data['dob']
     )
