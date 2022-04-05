@@ -113,8 +113,9 @@ def updateOrderToPaid(request, pk):
 @swagger_auto_schema(methods=['get'], responses={200: orders_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getMyOrders(request,pk):
-    obj = Trainee.objects.filter(_id=pk).first()
+def getMyOrders(request):
+    trainee_id = request.user.trainee.pk
+    obj = Trainee.objects.filter(_id=trainee_id).first()
     order = obj.order_set.all()
     if order is None:
         return Response({'detail': 'Order does not exist'}, status=HTTP_404_NOT_FOUND)
@@ -125,8 +126,9 @@ def getMyOrders(request,pk):
 @swagger_auto_schema(methods=['get'], responses={200: trainers_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getMyTrainers(request, pk):
-    obj = Order.objects.filter(trainee___id=pk).values('trainer')
+def getMyTrainers(request):
+    trainee_id = request.user.trainee.pk
+    obj = Order.objects.filter(trainee___id=trainee_id).values('trainer')
     list_trainers = list(set([ i['trainer'] for i in obj ]))
     for i in list_trainers:
         trainer = Trainer.objects.filter().union(

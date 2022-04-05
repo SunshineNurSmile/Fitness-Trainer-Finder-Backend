@@ -2,13 +2,15 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 
+from rest_framework.status import *
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from base.models import Trainee, Trainer, Review
-from base.serializers import ReviewSerializer, TrainerSerializer
+from base.models import Trainee, Trainer, Review, Payment
+from base.serializers import ReviewSerializer, TrainerSerializer, PaymentSerializer, ChatSerializer, NoteSerializer
 
 param_keyword = openapi.Parameter('keyword', openapi.IN_QUERY, description="test manual param",
                                   type=openapi.TYPE_STRING)
@@ -16,6 +18,8 @@ param_page = openapi.Parameter('page', openapi.IN_QUERY, description="test manua
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 trainer_response = openapi.Response('response description', TrainerSerializer)
 trainers_response = openapi.Response('response description', TrainerSerializer(many=True))
+payments_response = openapi.Response('response description', PaymentSerializer(many=True))
+chats_response = openapi.Response('response description', ChatSerializer(many=True))
 
 
 @swagger_auto_schema(methods=['get'], manual_parameters=[param_keyword, param_page], responses={200: trainers_response})
@@ -117,4 +121,65 @@ def createTrainerReview(request, pk):
         trainer.save()
 
         return Response({'Review Add'})
+
+
+@swagger_auto_schema(methods=['post'], request_body=PaymentSerializer)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createPayment(request):
+
+    data = request.data
+    trainer_id = request.user.trainer.pk
+    trainer = Trainer.objects.get(_id=trainer_id)
+
+    # try:
+    payment = Payment.objects.create(
+        trainer=trainer,
+        price=data['price'],
+        description1=data['description1'],
+        description2=data['description2'],
+        description3=data['description3'],
+    )
+    serializer = PaymentSerializer(payment, many=False)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['get'], responses={200: payments_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getMyPayments(request):
+    trainer_id = request.user.trainer.pk
+    obj = Trainer.objects.filter(_id=trainer_id).first()
+    payment = obj.payment_set.all()
+    if payment is None:
+        return Response({'detail': 'Payment does not exist'}, status=HTTP_404_NOT_FOUND)
+    serializer = PaymentSerializer(payment, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['get'], responses={200: chats_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getMyChats(request):
+    trainer_id = request.user.trainer.pk
+    obj = Trainer.objects.filter(_id=trainer_id).first()
+    chat = obj.chat_set.filter(isAccepted=True).all()
+    if chat is None:
+        return Response({'detail': 'Order does not exist'}, status=HTTP_404_NOT_FOUND)
+    serializer = ChatSerializer(chat, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['get'], responses={200: chats_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getMyNotes(request):
+    trainer_id = request.user.trainer.pk
+    obj = Trainer.objects.filter(_id=trainer_id).first()
+    note = obj.note_set.all()
+    if note is None:
+        return Response({'detail': 'Note does not exist'}, status=HTTP_404_NOT_FOUND)
+    serializer = NoteSerializer(note, many=True)
+    return Response(serializer.data)
+
 
