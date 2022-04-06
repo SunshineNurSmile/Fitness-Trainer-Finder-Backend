@@ -9,5 +9,8 @@ urlpatterns = [
     path('update/<str:pk>/', views.updateTrainee, name='trainee-update'),
     path('create', views.createTrainee, name='trainee-create'),
     path('list/', views.AllTraineesList.as_view(), name='trainees'),
-    path('mytrainers/<str:pk>/', order_views.getMyTrainers, name='my trainers')
+    path('mytrainers/', order_views.getMyTrainers, name='my trainers'),
+    path('createchat/', views.createChat, name='chats-add'),
+    path('createnote/', views.createNote, name='notes-add'),
+
 ]

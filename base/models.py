@@ -39,7 +39,17 @@ class Trainer(models.Model):
         blank=True,
         related_name='trainer'
     )
-    image = models.TextField(null=True, blank=True)
+    avatar = models.TextField(null=True, blank=True)
+    image1 = models.TextField(null=True, blank=True)
+    image2 = models.TextField(null=True, blank=True)
+    image3 = models.TextField(null=True, blank=True)
+    image4 = models.TextField(null=True, blank=True)
+    image5 = models.TextField(null=True, blank=True)
+    image6 = models.TextField(null=True, blank=True)
+    image7 = models.TextField(null=True, blank=True)
+    image8 = models.TextField(null=True, blank=True)
+    image9 = models.TextField(null=True, blank=True)
+    video = models.FileField(upload_to="video/", default="video.mp4")
     training_style = models.CharField(max_length=50, default='PowerLifting')
     # TODO
     # create trainers course and category needs to search trainer
@@ -85,3 +95,37 @@ class Order(models.Model):
     def __str__(self):
         return str(self.createdAt)
 
+
+class Chat(models.Model):
+    trainee = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
+    trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
+    isAccepted = models.BooleanField(default=False)
+    chat_message = models.TextField(null=True, blank=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    _id = models.AutoField(primary_key=True, editable=False)
+
+    def __str__(self):
+        return str(self._id)
+
+
+class Note(models.Model):
+    trainee = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
+    trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
+    note_message = models.TextField(null=True, blank=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    _id = models.AutoField(primary_key=True, editable=False)
+
+    def __str__(self):
+        return str(self._id)
+
+
+class Payment(models.Model):
+    trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
+    price = models.DecimalField(
+        max_digits=7, decimal_places=2, null=True, blank=True)
+    description1 = models.TextField(null=True, blank=True)
+    description2 = models.TextField(null=True, blank=True)
+    description3 = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.trainer.pk)

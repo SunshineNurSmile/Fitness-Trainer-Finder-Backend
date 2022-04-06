@@ -14,6 +14,17 @@ urlpatterns = [
     path('top/', trainers_views.getTopTrainers, name='top-trainers'),
     path('<str:pk>/', trainers_views.getTrainerById, name='trainer-by-id'),
 
+    path('payment/create/', trainers_views.createPayment, name="payment-add"),
+    path('mypayments', trainers_views.getMyPayments, name="payments"),
+
+    path('mytrainees', users_views.getMyTrainees, name='my trainees'),
+
+    path('mychats', trainers_views.getMyChats, name='my chats'),
+    path('mynotes', trainers_views.getMyNotes, name='my notes'),
+    path('toaccept/<str:pk>/', users_views.updateChatAccepted, name='accept chat'),
+    path('myacceptedtrainees', users_views.getMyAcceptedTrainees, name='my accepted trainees'),
+
+
     # path('update/<str:pk>/', views.updateProduct, name="product-update"),
     # path('delete/<str:pk>/', views.deleteTrainer, name="product-delete")
 ]
