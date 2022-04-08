@@ -1,6 +1,7 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from backend.settings import MEDIA_ROOT
 
 from rest_framework.status import *
 import os
@@ -130,7 +131,6 @@ def createTrainerReview(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def createPayment(request):
-
     data = request.data
     trainer_id = request.user.trainer.pk
     trainer = Trainer.objects.get(_id=trainer_id)
@@ -191,6 +191,7 @@ def getMyNotes(request):
 @permission_classes([IsAuthenticated])
 def index(request):
     file = request.FILES['file'].read()
+    print(file)
     fileName = request.POST['filename']
     existingPath = request.POST['existingPath']
     end = request.POST['end']
@@ -239,3 +240,13 @@ def index(request):
             else:
                 res = JsonResponse({'data': 'No such file exists in the existingPath'})
                 return res
+
+
+@swagger_auto_schema(methods=['get'])
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getindex(request):
+    trainer_id = request.user.trainer.pk
+    obj = File.objects.filter(trainer___id=trainer_id).values('existingPath')
+    x = os.path.join(MEDIA_ROOT, obj)
+    return Response(x)
