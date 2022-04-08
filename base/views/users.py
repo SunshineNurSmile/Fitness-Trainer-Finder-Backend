@@ -193,10 +193,6 @@ def updateTrainer(request, pk):
     trainer.image4 = data['image4']
     trainer.image5 = data['image5']
     trainer.image6 = data['image6']
-    trainer.image7 = data['image7']
-    trainer.image8 = data['image8']
-    trainer.image9 = data['image9']
-    trainer.video = request.FILES.get('video')
 
     trainer.save()
 
