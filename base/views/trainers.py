@@ -191,7 +191,6 @@ def getMyNotes(request):
 @permission_classes([IsAuthenticated])
 def index(request):
     file = request.FILES['file'].read()
-    print(file)
     fileName = request.POST['filename']
     existingPath = request.POST['existingPath']
     end = request.POST['end']
