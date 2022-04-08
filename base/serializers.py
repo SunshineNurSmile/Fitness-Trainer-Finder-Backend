@@ -122,12 +122,6 @@ class PaymentSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
-class FileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = File
-        fields = '__all__'
-
-
 class OrderSerializer(serializers.ModelSerializer):
     trainee = serializers.SerializerMethodField(read_only=True)
     trainer = serializers.SerializerMethodField(read_only=True)
