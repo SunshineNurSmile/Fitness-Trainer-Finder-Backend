@@ -247,6 +247,6 @@ def index(request):
 @permission_classes([IsAuthenticated])
 def getindex(request):
     trainer_id = request.user.trainer.pk
-    obj = File.objects.filter(trainer___id=trainer_id).values('existingPath')
-    x = os.path.join(MEDIA_ROOT, obj.first())
+    obj = File.objects.filter(trainer___id=trainer_id).values('name')
+    x = list(os.path.join('http://127.0.0.1:8000/media', obj[i]['name']) for i in range(len(obj)))
     return Response(x)
