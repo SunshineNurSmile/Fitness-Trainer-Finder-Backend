@@ -1,15 +1,18 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from backend.settings import MEDIA_ROOT
 
 from rest_framework.status import *
+import os
+from django.http import JsonResponse
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from base.models import Trainee, Trainer, Review, Payment
+from base.models import Trainee, Trainer, Review, Payment, File
 from base.serializers import ReviewSerializer, TrainerSerializer, PaymentSerializer, ChatSerializer, NoteSerializer
 
 param_keyword = openapi.Parameter('keyword', openapi.IN_QUERY, description="test manual param",
@@ -127,7 +130,6 @@ def createTrainerReview(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def createPayment(request):
-
     data = request.data
     trainer_id = request.user.trainer.pk
     trainer = Trainer.objects.get(_id=trainer_id)
@@ -183,3 +185,66 @@ def getMyNotes(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['post'])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def index(request):
+    file = request.FILES['file'].read()
+    fileName = request.POST['filename']
+    existingPath = request.POST['existingPath']
+    end = request.POST['end']
+    nextSlice = request.POST['nextSlice']
+
+    trainer_id = request.user.trainer.pk
+    trainer = Trainer.objects.get(_id=trainer_id)
+    if file == "" or fileName == "" or existingPath == "" or end == "" or nextSlice == "":
+        res = JsonResponse({'data': 'Invalid Request'})
+        return res
+    else:
+        if existingPath == 'null':
+            path = 'media/' + fileName
+            with open(path, 'wb+') as destination:
+                destination.write(file)
+            FileFolder = File()
+            FileFolder.existingPath = fileName
+            FileFolder.trainer = trainer
+            FileFolder.eof = end
+            FileFolder.name = fileName
+            FileFolder.save()
+            if int(end):
+                res = JsonResponse({'data': 'Uploaded Successfully', 'existingPath': fileName})
+            else:
+                res = JsonResponse({'existingPath': fileName})
+            return res
+
+        else:
+            path = 'media/' + existingPath
+            model_id = File.objects.get(existingPath=existingPath)
+            if model_id.name == fileName:
+                if not model_id.eof:
+                    with open(path, 'ab+') as destination:
+                        destination.write(file)
+                    if int(end):
+                        model_id.trainer = trainer
+                        model_id.eof = int(end)
+                        model_id.save()
+                        res = JsonResponse({'data': 'Uploaded Successfully', 'existingPath': model_id.existingPath})
+                    else:
+                        res = JsonResponse({'existingPath': model_id.existingPath})
+                    return res
+                else:
+                    res = JsonResponse({'data': 'EOF found. Invalid request'})
+                    return res
+            else:
+                res = JsonResponse({'data': 'No such file exists in the existingPath'})
+                return res
+
+
+@swagger_auto_schema(methods=['get'])
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getindex(request):
+    trainer_id = request.user.trainer.pk
+    obj = File.objects.filter(trainer___id=trainer_id).values('name')
+    x = list(os.path.join('http://127.0.0.1:8000/media', obj[i]['name']) for i in range(len(obj)))
+    return Response(x)

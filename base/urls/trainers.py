@@ -24,6 +24,9 @@ urlpatterns = [
     path('toaccept/<str:pk>/', users_views.updateChatAccepted, name='accept chat'),
     path('myacceptedtrainees', users_views.getMyAcceptedTrainees, name='my accepted trainees'),
 
+    path('uploadFile', trainers_views.index, name='upload the video'),
+    path('thefile',trainers_views.getindex, name='the file'),
+
 
     # path('update/<str:pk>/', views.updateProduct, name="product-update"),
     # path('delete/<str:pk>/', views.deleteTrainer, name="product-delete")

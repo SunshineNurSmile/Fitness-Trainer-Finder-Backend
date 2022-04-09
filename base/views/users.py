@@ -193,10 +193,6 @@ def updateTrainer(request, pk):
     trainer.image4 = data['image4']
     trainer.image5 = data['image5']
     trainer.image6 = data['image6']
-    trainer.image7 = data['image7']
-    trainer.image8 = data['image8']
-    trainer.image9 = data['image9']
-    trainer.video = request.FILES.get('video')
 
     trainer.save()
 
@@ -212,7 +208,6 @@ def getMyTrainees(request):
     trainer_id = request.user.trainer.pk
     obj = Order.objects.filter(trainer=trainer_id).values('trainee')
     list_trainees = list(set([ i['trainee'] for i in obj ]))
-    print(list_trainees)
     for i in list_trainees:
         trainee = Trainee.objects.filter().union(
             Trainee.objects.filter(_id=i)
@@ -284,7 +279,6 @@ def getMyAcceptedTrainees(request):
     trainer_id = request.user.trainer.pk
     obj = Chat.objects.filter(isAccepted=True).filter(trainer=trainer_id).values('trainee')
     list_trainees = list(set([ i['trainee'] for i in obj ]))
-    print(list_trainees)
     for i in list_trainees:
         trainee = Trainee.objects.filter().union(
             Trainee.objects.filter(_id=i)

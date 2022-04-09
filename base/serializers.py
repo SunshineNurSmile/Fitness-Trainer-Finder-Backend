@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # from backend.base.models import UserProfile
-from .models import Order, Review, Trainer, Trainee, Chat, Payment, Note
+from .models import Order, Review, Trainer, Trainee, Chat, Payment, Note, File
 
 
 class UserSerializerWithTrainee(serializers.ModelSerializer):
@@ -111,9 +111,15 @@ class NoteSerializer(serializers.ModelSerializer):
 
 
 class PaymentSerializer(serializers.ModelSerializer):
+    trainer = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Payment
         fields = '__all__'
+
+    def get_trainer(self, obj):
+        trainer = obj.trainer
+        serializer = TrainerSerializer(trainer, many=False)
+        return serializer.data
 
 
 class OrderSerializer(serializers.ModelSerializer):

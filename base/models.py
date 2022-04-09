@@ -129,3 +129,14 @@ class Payment(models.Model):
 
     def __str__(self):
         return str(self.trainer.pk)
+
+
+class File(models.Model):
+    trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
+    existingPath = models.CharField(max_length=100)
+    name = models.CharField(max_length=50)
+    eof = models.BooleanField()
+
+    def __str__(self):
+        return str(self.name)
+
