@@ -242,7 +242,7 @@ def createChat(request):
 @permission_classes([IsAuthenticated])
 def createNote(request):
     # to get trainee from access token
-    trainee_id = request.user.id
+    trainee_id = request.user.trainee.pk
     trainee = Trainee.objects.get(_id=trainee_id)
     data = request.data
     trainer_id = request.data['trainer_id']
