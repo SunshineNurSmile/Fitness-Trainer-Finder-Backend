@@ -26,7 +26,8 @@ urlpatterns = [
     path('myacceptedtrainees', users_views.getMyAcceptedTrainees, name='my accepted trainees'),
 
     path('uploadFile', trainers_views.index, name='upload the video'),
-    path('thefile',trainers_views.getindex, name='the file'),
+    path('thefile', trainers_views.getindex, name='the file'),
+    path('file/<str:pk>/', trainers_views.getindexByid, name='get the file by id')
 
 
     # path('update/<str:pk>/', views.updateProduct, name="product-update"),

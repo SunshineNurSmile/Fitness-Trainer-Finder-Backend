@@ -271,3 +271,11 @@ def updatePayment(request):
 
     serializer = PaymentSerializer(payment, many=False)
     return Response(serializer.data)
+
+@swagger_auto_schema(methods=['get'])
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getindexByid(request, pk):
+    obj = File.objects.filter(trainer___id=pk).values('name')
+    x = list(os.path.join('http://127.0.0.1:8000/media', obj[i]['name']) for i in range(len(obj)))
+    return Response(x)
