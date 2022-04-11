@@ -161,6 +161,17 @@ def getMyPayment(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['get'], responses={200: payments_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getMyPaymentById(request, pk):
+    payment = Payment.objects.get(trainer___id=pk)
+    if payment is None:
+        return Response({'detail': 'Payment does not exist'}, status=HTTP_404_NOT_FOUND)
+    serializer = PaymentSerializer(payment, many=False)
+    return Response(serializer.data)
+
+
 @swagger_auto_schema(methods=['get'], responses={200: chats_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
