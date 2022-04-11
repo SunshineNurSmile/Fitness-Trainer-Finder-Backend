@@ -14,7 +14,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from base.models import Trainee, Trainer, Review, Payment, File
 from base.serializers import ReviewSerializer, TrainerSerializer, PaymentSerializer, ChatSerializer, NoteSerializer,\
-    TrainerSerializerById
+    TrainerSerializerWithName
 
 param_keyword = openapi.Parameter('keyword', openapi.IN_QUERY, description="test manual param",
                                   type=openapi.TYPE_STRING)
@@ -61,7 +61,7 @@ def getTrainers(request):
 @api_view(['GET'])
 def getTrainerById(request, pk):
     trainer = Trainer.objects.get(_id=pk)
-    serializer = TrainerSerializerById(trainer, many=False)
+    serializer = TrainerSerializerWithName(trainer, many=False)
     return Response(serializer.data)
 
 

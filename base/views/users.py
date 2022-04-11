@@ -18,7 +18,7 @@ from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 
 from ..serializers import TraineeSerializer, TrainerSerializer, UserSerializerWithToken, UserSerializerWithTrainee, \
-    UserSerializerWithTrainer, ChatSerializer, NoteSerializer, TraineeSerializerForOrder
+    UserSerializerWithTrainer, ChatSerializer, NoteSerializer, TraineeSerializerForOrder, TrainerSerializerWithName
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 user_trainee_response = openapi.Response('response description', UserSerializerWithTrainee)
@@ -52,7 +52,7 @@ class AllTraineesList(generics.ListAPIView):
 
 class AllTrainersList(generics.ListAPIView):
     queryset = Trainer.objects.all()
-    serializer_class = TrainerSerializer
+    serializer_class = TrainerSerializerWithName
     permission_classes = [IsAuthenticated]
 
 

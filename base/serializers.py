@@ -92,7 +92,7 @@ class TraineeSerializerForOrder(serializers.ModelSerializer):
         return name
 
 
-class TrainerSerializerById(serializers.ModelSerializer):
+class TrainerSerializerWithName(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
