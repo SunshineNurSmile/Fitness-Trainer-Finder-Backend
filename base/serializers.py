@@ -78,6 +78,20 @@ class TraineeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class TraineeSerializerForOrder(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Trainee
+        fields = ['avatar', '_id', 'name']
+
+    def get_name(self, obj):
+        name = obj.user.first_name + ' ' + obj.user.last_name
+        if name == '':
+            name = obj.user.email
+        return name
+
+
 class TrainerSerializer(serializers.ModelSerializer):
     reviews = serializers.SerializerMethodField(read_only=True)
 

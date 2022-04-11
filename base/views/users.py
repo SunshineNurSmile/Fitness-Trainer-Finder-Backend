@@ -18,7 +18,7 @@ from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 
 from ..serializers import TraineeSerializer, TrainerSerializer, UserSerializerWithToken, UserSerializerWithTrainee, \
-    UserSerializerWithTrainer, ChatSerializer, NoteSerializer
+    UserSerializerWithTrainer, ChatSerializer, NoteSerializer, TraineeSerializerForOrder
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 user_trainee_response = openapi.Response('response description', UserSerializerWithTrainee)
@@ -214,7 +214,7 @@ def getMyTrainees(request):
         )
         if obj is None:
             return Response({'detail': 'Trainee does not exist'}, status=HTTP_404_NOT_FOUND)
-    serializer = TraineeSerializer(trainee, many=True)
+    serializer = TraineeSerializerForOrder(trainee, many=True)
 
     return Response(serializer.data)
 
