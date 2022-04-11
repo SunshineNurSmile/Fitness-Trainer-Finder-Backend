@@ -61,7 +61,7 @@ def getTrainers(request):
 @api_view(['GET'])
 def getTrainerById(request, pk):
     trainer = Trainer.objects.get(_id=pk)
-    serializer = TrainerSerializer(trainer, many=False)
+    serializer = TrainerSerializerById(trainer, many=False)
     return Response(serializer.data)
 
 
