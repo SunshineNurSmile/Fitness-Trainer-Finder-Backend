@@ -93,10 +93,8 @@ class Order(models.Model):
 
 
 class Chat(models.Model):
-    trainee = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
     trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
-    isAccepted = models.BooleanField(default=False)
-    chat_message = models.TextField(null=True, blank=True)
+    trainee = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     _id = models.AutoField(primary_key=True, editable=False)
 

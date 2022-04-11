@@ -231,7 +231,6 @@ def createChat(request):
     chat = Chat.objects.create(
         trainee=trainee,
         trainer=trainer,
-        chat_message=data['chat_message'],
     )
     serializer = ChatSerializer(chat, many=False)
     return Response(serializer.data)
@@ -257,15 +256,15 @@ def createNote(request):
     return Response(serializer.data)
 
 
-@swagger_auto_schema(methods=['put'], manual_parameters=[param_id], responses={200: 'Notification Accepted!'})
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def updateChatAccepted(request, pk):
-    chat = Chat.objects.get(trainee___id=pk)
-    chat.isAccepted = True
-    chat.save()
-
-    return Response('Notification Accepted!')
+# @swagger_auto_schema(methods=['put'], manual_parameters=[param_id], responses={200: 'Notification Accepted!'})
+# @api_view(['PUT'])
+# @permission_classes([IsAuthenticated])
+# def updateChatAccepted(request, pk):
+#     chat = Chat.objects.get(trainee___id=pk)
+#     chat.isAccepted = True
+#     chat.save()
+#
+#     return Response('Notification Accepted!')
 
 
 @swagger_auto_schema(methods=['get'], responses={200: trainees_response})
@@ -273,7 +272,7 @@ def updateChatAccepted(request, pk):
 @permission_classes([IsAuthenticated])
 def getMyAcceptedTrainees(request):
     trainer_id = request.user.trainer.pk
-    obj = Chat.objects.filter(isAccepted=True).filter(trainer=trainer_id).values('trainee')
+    obj = Chat.objects.filter(trainer=trainer_id).values('trainee')
     list_trainees = list(set([ i['trainee'] for i in obj ]))
     for i in list_trainees:
         trainee = Trainee.objects.filter().union(
