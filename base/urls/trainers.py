@@ -15,7 +15,8 @@ urlpatterns = [
     path('<str:pk>/', trainers_views.getTrainerById, name='trainer-by-id'),
 
     path('payment/create/', trainers_views.createPayment, name="payment-add"),
-    path('mypayments', trainers_views.getMyPayments, name="payments"),
+    path('payment/get/', trainers_views.getMyPayment, name="payments"),
+    path('payment/update/', trainers_views.updatePayment, name="payment-update"),
 
     path('mytrainees', users_views.getMyTrainees, name='my trainees'),
 

@@ -46,10 +46,6 @@ class Trainer(models.Model):
     image4 = models.TextField(null=True, blank=True)
     image5 = models.TextField(null=True, blank=True)
     image6 = models.TextField(null=True, blank=True)
-    image7 = models.TextField(null=True, blank=True)
-    image8 = models.TextField(null=True, blank=True)
-    image9 = models.TextField(null=True, blank=True)
-    video = models.FileField(upload_to="video/", default="video.mp4")
     training_style = models.CharField(max_length=50, default='PowerLifting')
     # TODO
     # create trainers course and category needs to search trainer
@@ -120,8 +116,18 @@ class Note(models.Model):
 
 
 class Payment(models.Model):
-    trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
-    price = models.DecimalField(
+    trainer = models.OneToOneField(
+        'Trainer',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='payment'
+    )
+    price1 = models.DecimalField(
+        max_digits=7, decimal_places=2, null=True, blank=True)
+    price2 = models.DecimalField(
+        max_digits=7, decimal_places=2, null=True, blank=True)
+    price3 = models.DecimalField(
         max_digits=7, decimal_places=2, null=True, blank=True)
     description1 = models.TextField(null=True, blank=True)
     description2 = models.TextField(null=True, blank=True)
@@ -132,7 +138,13 @@ class Payment(models.Model):
 
 
 class File(models.Model):
-    trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
+    trainer = models.OneToOneField(
+        'Trainer',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='file'
+    )
     existingPath = models.CharField(max_length=100)
     name = models.CharField(max_length=50)
     eof = models.BooleanField()

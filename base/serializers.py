@@ -111,15 +111,9 @@ class NoteSerializer(serializers.ModelSerializer):
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-    trainer = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Payment
-        fields = '__all__'
-
-    def get_trainer(self, obj):
-        trainer = obj.trainer
-        serializer = TrainerSerializer(trainer, many=False)
-        return serializer.data
+        fields = ['price1', 'price2', 'price3', 'description1', 'description2', 'description3']
 
 
 class OrderSerializer(serializers.ModelSerializer):
