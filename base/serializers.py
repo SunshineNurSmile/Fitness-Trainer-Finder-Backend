@@ -92,6 +92,21 @@ class TraineeSerializerForOrder(serializers.ModelSerializer):
         return name
 
 
+class TrainerSerializerById(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Trainer
+        fields = ['name', 'avatar', 'image1', 'image2', 'image3', 'image4', 'image5', 'image6', 'training_style',
+                  'description', 'rating', 'dob', 'gender', 'numReviews', 'price', 'createdAt', '_id']
+
+    def get_name(self, obj):
+        name = obj.user.first_name + ' ' + obj.user.last_name
+        if name == '':
+            name = obj.user.email
+        return name
+
+
 class TrainerSerializer(serializers.ModelSerializer):
     reviews = serializers.SerializerMethodField(read_only=True)
 
@@ -113,15 +128,41 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ChatSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Chat
-        fields = '__all__'
+        fields = ['avatar', 'name', 'trainee', 'chat_message']
+
+    def get_avatar(self, obj):
+        avatar = obj.trainee.avatar
+        return avatar
+
+    def get_name(self, obj):
+        name = obj.trainee.user.first_name + ' ' + obj.trainee.user.last_name
+        if name == '':
+            name = obj.trainee.user.email
+        return name
 
 
 class NoteSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Note
-        fields = '__all__'
+        fields = ['avatar', 'name']
+
+    def get_avatar(self, obj):
+        avatar = obj.trainee.avatar
+        return avatar
+
+    def get_name(self, obj):
+        name = obj.trainee.user.first_name + ' ' + obj.trainee.user.last_name
+        if name == '':
+            name = obj.trainee.user.email
+        return name
 
 
 class PaymentSerializer(serializers.ModelSerializer):
