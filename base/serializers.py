@@ -152,7 +152,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Note
-        fields = ['avatar', 'name']
+        fields = ['avatar', 'name', 'trainee']
 
     def get_avatar(self, obj):
         avatar = obj.trainee.avatar
