@@ -13,7 +13,8 @@ from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from base.models import Trainee, Trainer, Review, Payment, File
-from base.serializers import ReviewSerializer, TrainerSerializer, PaymentSerializer, ChatSerializer, NoteSerializer
+from base.serializers import ReviewSerializer, TrainerSerializer, PaymentSerializer, ChatSerializer, NoteSerializer,\
+    TrainerSerializerWithName
 
 param_keyword = openapi.Parameter('keyword', openapi.IN_QUERY, description="test manual param",
                                   type=openapi.TYPE_STRING)
@@ -60,7 +61,7 @@ def getTrainers(request):
 @api_view(['GET'])
 def getTrainerById(request, pk):
     trainer = Trainer.objects.get(_id=pk)
-    serializer = TrainerSerializer(trainer, many=False)
+    serializer = TrainerSerializerWithName(trainer, many=False)
     return Response(serializer.data)
 
 
@@ -137,7 +138,9 @@ def createPayment(request):
     # try:
     payment = Payment.objects.create(
         trainer=trainer,
-        price=data['price'],
+        price1=data['price1'],
+        price2=data['price2'],
+        price3=data['price3'],
         description1=data['description1'],
         description2=data['description2'],
         description3=data['description3'],
@@ -149,13 +152,23 @@ def createPayment(request):
 @swagger_auto_schema(methods=['get'], responses={200: payments_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getMyPayments(request):
+def getMyPayment(request):
     trainer_id = request.user.trainer.pk
-    obj = Trainer.objects.filter(_id=trainer_id).first()
-    payment = obj.payment_set.all()
+    payment = Payment.objects.get(trainer___id=trainer_id)
     if payment is None:
         return Response({'detail': 'Payment does not exist'}, status=HTTP_404_NOT_FOUND)
-    serializer = PaymentSerializer(payment, many=True)
+    serializer = PaymentSerializer(payment, many=False)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['get'], responses={200: payments_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getMyPaymentById(request, pk):
+    payment = Payment.objects.get(trainer___id=pk)
+    if payment is None:
+        return Response({'detail': 'Payment does not exist'}, status=HTTP_404_NOT_FOUND)
+    serializer = PaymentSerializer(payment, many=False)
     return Response(serializer.data)
 
 
@@ -246,5 +259,35 @@ def index(request):
 def getindex(request):
     trainer_id = request.user.trainer.pk
     obj = File.objects.filter(trainer___id=trainer_id).values('name')
+    x = list(os.path.join('http://127.0.0.1:8000/media', obj[i]['name']) for i in range(len(obj)))
+    return Response(x)
+
+
+@swagger_auto_schema(methods=['put'], responses={201: 'Payment updated'})
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updatePayment(request):
+    trainer_id = request.user.trainer.pk
+    payment = Payment.objects.get(trainer___id=trainer_id)
+
+    data = request.data
+
+    payment.price1 = data['price1']
+    payment.price2 = data['price2']
+    payment.price3 = data['price3']
+    payment.description1 = data['description1']
+    payment.description2 = data['description2']
+    payment.description3 = data['description3']
+
+    payment.save()
+
+    serializer = PaymentSerializer(payment, many=False)
+    return Response(serializer.data)
+
+@swagger_auto_schema(methods=['get'])
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getindexByid(request, pk):
+    obj = File.objects.filter(trainer___id=pk).values('name')
     x = list(os.path.join('http://127.0.0.1:8000/media', obj[i]['name']) for i in range(len(obj)))
     return Response(x)

@@ -78,6 +78,35 @@ class TraineeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class TraineeSerializerForOrder(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Trainee
+        fields = ['avatar', '_id', 'name']
+
+    def get_name(self, obj):
+        name = obj.user.first_name + ' ' + obj.user.last_name
+        if name == '':
+            name = obj.user.email
+        return name
+
+
+class TrainerSerializerWithName(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Trainer
+        fields = ['name', 'avatar', 'image1', 'image2', 'image3', 'image4', 'image5', 'image6', 'training_style',
+                  'description', 'rating', 'dob', 'gender', 'numReviews', 'price', 'createdAt', '_id']
+
+    def get_name(self, obj):
+        name = obj.user.first_name + ' ' + obj.user.last_name
+        if name == '':
+            name = obj.user.email
+        return name
+
+
 class TrainerSerializer(serializers.ModelSerializer):
     reviews = serializers.SerializerMethodField(read_only=True)
 
@@ -99,27 +128,47 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ChatSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Chat
-        fields = '__all__'
+        fields = ['avatar', 'name', 'trainee']
+
+    def get_avatar(self, obj):
+        avatar = obj.trainee.avatar
+        return avatar
+
+    def get_name(self, obj):
+        name = obj.trainee.user.first_name + ' ' + obj.trainee.user.last_name
+        if name == '':
+            name = obj.trainee.user.email
+        return name
 
 
 class NoteSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Note
-        fields = '__all__'
+        fields = ['avatar', 'name', 'trainee']
+
+    def get_avatar(self, obj):
+        avatar = obj.trainee.avatar
+        return avatar
+
+    def get_name(self, obj):
+        name = obj.trainee.user.first_name + ' ' + obj.trainee.user.last_name
+        if name == '':
+            name = obj.trainee.user.email
+        return name
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-    trainer = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Payment
-        fields = '__all__'
-
-    def get_trainer(self, obj):
-        trainer = obj.trainer
-        serializer = TrainerSerializer(trainer, many=False)
-        return serializer.data
+        fields = ['price1', 'price2', 'price3', 'description1', 'description2', 'description3']
 
 
 class OrderSerializer(serializers.ModelSerializer):

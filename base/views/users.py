@@ -18,7 +18,7 @@ from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 
 from ..serializers import TraineeSerializer, TrainerSerializer, UserSerializerWithToken, UserSerializerWithTrainee, \
-    UserSerializerWithTrainer, ChatSerializer, NoteSerializer
+    UserSerializerWithTrainer, ChatSerializer, NoteSerializer, TraineeSerializerForOrder, TrainerSerializerWithName
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 user_trainee_response = openapi.Response('response description', UserSerializerWithTrainee)
@@ -52,7 +52,7 @@ class AllTraineesList(generics.ListAPIView):
 
 class AllTrainersList(generics.ListAPIView):
     queryset = Trainer.objects.all()
-    serializer_class = TrainerSerializer
+    serializer_class = TrainerSerializerWithName
     permission_classes = [IsAuthenticated]
 
 
@@ -181,10 +181,7 @@ def updateTrainer(request, pk):
     trainer = Trainer.objects.get(user_id=pk)
 
     data = request.data
-    trainer.height = data['height']
-    trainer.weight = data['weight']
     trainer.training_style = data['training_style']
-    trainer.gender = data['gender']
     trainer.description = data['description']
     trainer.avatar = data['avatar']
     trainer.image1 = data['image1']
@@ -214,7 +211,7 @@ def getMyTrainees(request):
         )
         if obj is None:
             return Response({'detail': 'Trainee does not exist'}, status=HTTP_404_NOT_FOUND)
-    serializer = TraineeSerializer(trainee, many=True)
+    serializer = TraineeSerializerForOrder(trainee, many=True)
 
     return Response(serializer.data)
 
@@ -224,17 +221,16 @@ def getMyTrainees(request):
 @permission_classes([IsAuthenticated])
 def createChat(request):
     # to get trainee from access token
-    trainee_id = request.user.id
-    trainee = Trainee.objects.get(_id=trainee_id)
-    data = request.data
-    trainer_id = request.data['trainer_id']
+    trainer_id = request.user.trainer.pk
     trainer = Trainer.objects.get(_id=trainer_id)
+    data = request.data
+    trainee_id = request.data['trainee_id']
+    trainee = Trainee.objects.get(_id=trainee_id)
 
     # try:
     chat = Chat.objects.create(
         trainee=trainee,
         trainer=trainer,
-        chat_message=data['chat_message'],
     )
     serializer = ChatSerializer(chat, many=False)
     return Response(serializer.data)
@@ -245,7 +241,7 @@ def createChat(request):
 @permission_classes([IsAuthenticated])
 def createNote(request):
     # to get trainee from access token
-    trainee_id = request.user.id
+    trainee_id = request.user.trainee.pk
     trainee = Trainee.objects.get(_id=trainee_id)
     data = request.data
     trainer_id = request.data['trainer_id']
@@ -255,21 +251,20 @@ def createNote(request):
     note = Note.objects.create(
         trainee=trainee,
         trainer=trainer,
-        note_message=data['note_message'],
     )
     serializer = NoteSerializer(note, many=False)
     return Response(serializer.data)
 
 
-@swagger_auto_schema(methods=['put'], manual_parameters=[param_id], responses={200: 'Notification Accepted!'})
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def updateChatAccepted(request, pk):
-    chat = Chat.objects.get(_id=pk)
-    chat.isAccepted = True
-    chat.save()
-
-    return Response('Notification Accepted!')
+# @swagger_auto_schema(methods=['put'], manual_parameters=[param_id], responses={200: 'Notification Accepted!'})
+# @api_view(['PUT'])
+# @permission_classes([IsAuthenticated])
+# def updateChatAccepted(request, pk):
+#     chat = Chat.objects.get(trainee___id=pk)
+#     chat.isAccepted = True
+#     chat.save()
+#
+#     return Response('Notification Accepted!')
 
 
 @swagger_auto_schema(methods=['get'], responses={200: trainees_response})
@@ -277,7 +272,7 @@ def updateChatAccepted(request, pk):
 @permission_classes([IsAuthenticated])
 def getMyAcceptedTrainees(request):
     trainer_id = request.user.trainer.pk
-    obj = Chat.objects.filter(isAccepted=True).filter(trainer=trainer_id).values('trainee')
+    obj = Chat.objects.filter(trainer=trainer_id).values('trainee')
     list_trainees = list(set([ i['trainee'] for i in obj ]))
     for i in list_trainees:
         trainee = Trainee.objects.filter().union(

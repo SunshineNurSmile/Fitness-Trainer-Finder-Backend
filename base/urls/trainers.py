@@ -15,17 +15,21 @@ urlpatterns = [
     path('<str:pk>/', trainers_views.getTrainerById, name='trainer-by-id'),
 
     path('payment/create/', trainers_views.createPayment, name="payment-add"),
-    path('mypayments', trainers_views.getMyPayments, name="payments"),
+    path('payment/get/', trainers_views.getMyPayment, name="payments"),
+    path('payment/update/', trainers_views.updatePayment, name="payment-update"),
+    path('payment/<str:pk>/', trainers_views.getMyPaymentById, name='payment_Id'),
 
     path('mytrainees', users_views.getMyTrainees, name='my trainees'),
 
-    path('mychats', trainers_views.getMyChats, name='my chats'),
+    path('chat/create/', users_views.createChat, name='chats-add'),
+    path('chat/get/', trainers_views.getMyChats, name='my chats'),
     path('mynotes', trainers_views.getMyNotes, name='my notes'),
-    path('toaccept/<str:pk>/', users_views.updateChatAccepted, name='accept chat'),
+    # path('toaccept/<str:pk>/', users_views.updateChatAccepted, name='accept chat'),
     path('myacceptedtrainees', users_views.getMyAcceptedTrainees, name='my accepted trainees'),
 
     path('uploadFile', trainers_views.index, name='upload the video'),
-    path('thefile',trainers_views.getindex, name='the file'),
+    path('thefile', trainers_views.getindex, name='the file'),
+    path('file/<str:pk>/', trainers_views.getindexByid, name='get the file by id')
 
 
     # path('update/<str:pk>/', views.updateProduct, name="product-update"),
