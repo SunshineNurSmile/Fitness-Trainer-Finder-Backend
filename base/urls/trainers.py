@@ -24,6 +24,7 @@ urlpatterns = [
     path('chat/create/', users_views.createChat, name='chats-add'),
     path('chat/get/', trainers_views.getMyChats, name='my chats'),
     path('mynotes', trainers_views.getMyNotes, name='my notes'),
+    path('note/delete/', trainers_views.deleteMyNotes, name='delete my notes'),
     # path('toaccept/<str:pk>/', users_views.updateChatAccepted, name='accept chat'),
     path('myacceptedtrainees', users_views.getMyAcceptedTrainees, name='my accepted trainees'),
 

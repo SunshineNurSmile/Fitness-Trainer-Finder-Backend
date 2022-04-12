@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from base.models import Trainee, Trainer, Review, Payment, File
+from base.models import Trainee, Trainer, Review, Payment, File, Note
 from base.serializers import ReviewSerializer, TrainerSerializer, PaymentSerializer, ChatSerializer, NoteSerializer,\
     TrainerSerializerWithName
 
@@ -196,6 +196,16 @@ def getMyNotes(request):
         return Response({'detail': 'Note does not exist'}, status=HTTP_404_NOT_FOUND)
     serializer = NoteSerializer(note, many=True)
     return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['delete'], responses={201: 'Notification deleted'})
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteMyNotes(request):
+    trainer_id = request.user.trainer.pk
+    trainee_id = request.data['trainee_id']
+    count = Note.objects.filter(trainer___id=trainer_id).filter(trainee=trainee_id).delete()
+    return Response({'message': 'Notification were deleted successfully!'}, status=HTTP_204_NO_CONTENT)
 
 
 @swagger_auto_schema(methods=['post'])
