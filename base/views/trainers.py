@@ -24,6 +24,7 @@ trainer_response = openapi.Response('response description', TrainerSerializer)
 trainers_response = openapi.Response('response description', TrainerSerializer(many=True))
 payments_response = openapi.Response('response description', PaymentSerializer(many=True))
 chats_response = openapi.Response('response description', ChatSerializer(many=True))
+notes_response = openapi.Response('response description', NoteSerializer(many=True))
 
 
 @swagger_auto_schema(methods=['get'], manual_parameters=[param_keyword, param_page], responses={200: trainers_response})
@@ -185,7 +186,7 @@ def getMyChats(request):
     return Response(serializer.data)
 
 
-@swagger_auto_schema(methods=['get'], responses={200: chats_response})
+@swagger_auto_schema(methods=['get'], responses={200: notes_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getMyNotes(request):
