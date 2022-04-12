@@ -1,7 +1,6 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from backend.settings import MEDIA_ROOT
 
 from rest_framework.status import *
 import os

@@ -146,6 +146,24 @@ class ChatSerializer(serializers.ModelSerializer):
         return name
 
 
+class ChatSerializerForTrainee(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Chat
+        fields = ['avatar', 'name', 'trainer']
+
+    def get_avatar(self, obj):
+        avatar = obj.trainer.avatar
+        return avatar
+
+    def get_name(self, obj):
+        name = obj.trainer.user.first_name + ' ' + obj.trainer.user.last_name
+        if name == '':
+            name = obj.trainer.user.email
+        return name
+
 class NoteSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField(read_only=True)
     name = serializers.SerializerMethodField(read_only=True)

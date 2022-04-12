@@ -11,5 +11,6 @@ urlpatterns = [
     path('list/', views.AllTraineesList.as_view(), name='trainees'),
     path('mytrainers/', order_views.getMyTrainers, name='my trainers'),
     path('createnote/', views.createNote, name='notes-add'),
+    path('chat/get/', views.getTraineeChats, name='my chats'),
 
 ]

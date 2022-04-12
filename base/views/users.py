@@ -18,13 +18,14 @@ from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 
 from ..serializers import TraineeSerializer, TrainerSerializer, UserSerializerWithToken, UserSerializerWithTrainee, \
-    UserSerializerWithTrainer, ChatSerializer, NoteSerializer, TraineeSerializerForOrder, TrainerSerializerWithName
+    UserSerializerWithTrainer, ChatSerializerForTrainee, ChatSerializer, NoteSerializer, TraineeSerializerForOrder, TrainerSerializerWithName
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 user_trainee_response = openapi.Response('response description', UserSerializerWithTrainee)
 user_trainer_response = openapi.Response('response description', UserSerializerWithTrainer)
 trainee_response = openapi.Response('response description', TraineeSerializer)
 trainees_response = openapi.Response('response description', TraineeSerializer(many=True))
+chats_response = openapi.Response('response description', ChatSerializerForTrainee(many=True))
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -267,21 +268,34 @@ def createNote(request):
 #     return Response('Notification Accepted!')
 
 
-@swagger_auto_schema(methods=['get'], responses={200: trainees_response})
+# @swagger_auto_schema(methods=['get'], responses={200: trainees_response})
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def getMyAcceptedTrainees(request):
+#     trainer_id = request.user.trainer.pk
+#     obj = Chat.objects.filter(trainer=trainer_id).values('trainee')
+#     list_trainees = list(set([ i['trainee'] for i in obj ]))
+#     for i in list_trainees:
+#         trainee = Trainee.objects.filter().union(
+#             Trainee.objects.filter(_id=i)
+#         )
+#         if obj is None:
+#             return Response({'detail': 'The Accepted trainee does not exist'}, status=HTTP_404_NOT_FOUND)
+#     serializer = TraineeSerializer(trainee, many=True)
+#
+#     return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['get'], responses={200: chats_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getMyAcceptedTrainees(request):
-    trainer_id = request.user.trainer.pk
-    obj = Chat.objects.filter(trainer=trainer_id).values('trainee')
-    list_trainees = list(set([ i['trainee'] for i in obj ]))
-    for i in list_trainees:
-        trainee = Trainee.objects.filter().union(
-            Trainee.objects.filter(_id=i)
-        )
-        if obj is None:
-            return Response({'detail': 'The Accepted trainee does not exist'}, status=HTTP_404_NOT_FOUND)
-    serializer = TraineeSerializer(trainee, many=True)
-
+def getTraineeChats(request):
+    trainee = request.user.trainee.pk
+    obj = Trainee.objects.filter(_id=trainee).first()
+    chat = obj.chat_set.all()
+    if chat is None:
+        return Response({'detail': 'Order does not exist'}, status=HTTP_404_NOT_FOUND)
+    serializer = ChatSerializerForTrainee(chat, many=True)
     return Response(serializer.data)
 
 
