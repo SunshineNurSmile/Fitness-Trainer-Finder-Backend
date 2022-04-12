@@ -199,7 +199,7 @@ def getMyNotes(request):
     return Response(serializer.data)
 
 
-@swagger_auto_schema(methods=['delete'], responses={201: 'Notification deleted'})
+@swagger_auto_schema(methods=['delete'], responses={204: 'Notification deleted'})
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def deleteMyNotes(request):
