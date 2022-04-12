@@ -175,10 +175,10 @@ def getMyPaymentById(request, pk):
 @swagger_auto_schema(methods=['get'], responses={200: chats_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getMyChats(request):
+def getTrainerChats(request):
     trainer_id = request.user.trainer.pk
     obj = Trainer.objects.filter(_id=trainer_id).first()
-    chat = obj.chat_set.filter(isAccepted=True).all()
+    chat = obj.chat_set.all()
     if chat is None:
         return Response({'detail': 'Order does not exist'}, status=HTTP_404_NOT_FOUND)
     serializer = ChatSerializer(chat, many=True)
@@ -293,6 +293,7 @@ def updatePayment(request):
 
     serializer = PaymentSerializer(payment, many=False)
     return Response(serializer.data)
+
 
 @swagger_auto_schema(methods=['get'])
 @api_view(['GET'])
