@@ -170,6 +170,7 @@ class ChatSerializerForTrainee(serializers.ModelSerializer):
             name = obj.trainer.user.email
         return name
 
+
 class NoteSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField(read_only=True)
     name = serializers.SerializerMethodField(read_only=True)
