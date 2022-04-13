@@ -8,12 +8,12 @@ from rest_framework.status import *
 
 from base.models import Order, Trainee, Trainer
 
-from base.serializers import OrderSerializer, TrainerSerializer
+from base.serializers import OrderSerializer, TrainerSerializerWithName
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 order_response = openapi.Response('response description', OrderSerializer)
 orders_response = openapi.Response('response description', OrderSerializer(many=True))
-trainers_response = openapi.Response('response description', TrainerSerializer(many=True))
+trainers_response = openapi.Response('response description', TrainerSerializerWithName(many=True))
 
 
 # TODO
@@ -136,7 +136,7 @@ def getMyTrainers(request):
         )
         if obj is None:
             return Response({'detail': 'Trainer does not exist'}, status=HTTP_404_NOT_FOUND)
-    serializer = TrainerSerializer(trainer, many=True)
+    serializer = TrainerSerializerWithName(trainer, many=True)
     return Response(serializer.data)
 
 

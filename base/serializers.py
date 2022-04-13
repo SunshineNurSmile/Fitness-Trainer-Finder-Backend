@@ -94,11 +94,12 @@ class TraineeSerializerForOrder(serializers.ModelSerializer):
 
 class TrainerSerializerWithName(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
+    reviews = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Trainer
         fields = ['name', 'avatar', 'image1', 'image2', 'image3', 'image4', 'image5', 'image6', 'training_style',
-                  'description', 'rating', 'dob', 'gender', 'numReviews', 'price', 'createdAt', '_id']
+                  'description', 'rating', 'dob', 'gender', 'numReviews', 'price', 'createdAt', '_id', 'reviews']
 
     def get_name(self, obj):
         name = obj.user.first_name + ' ' + obj.user.last_name
@@ -106,6 +107,11 @@ class TrainerSerializerWithName(serializers.ModelSerializer):
             name = obj.user.email
         return name
 
+    def get_reviews(self, obj):
+        # TODO review
+        reviews = obj.review_set.all()
+        serializer = ReviewSerializer(reviews, many=True)
+        return serializer.data
 
 class TrainerSerializer(serializers.ModelSerializer):
     reviews = serializers.SerializerMethodField(read_only=True)
