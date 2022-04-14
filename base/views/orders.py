@@ -59,7 +59,7 @@ trainers_response = openapi.Response('response description', TrainerSerializerWi
 @permission_classes([IsAuthenticated])
 def createOrder(request):
     # to get trainee from access token
-    trainee_id = request.user.id
+    trainee_id = request.user.trainee.pk
     trainee = Trainee.objects.get(_id=trainee_id)
     data = request.data
     trainer_id = request.data['trainer_id']
@@ -115,8 +115,7 @@ def updateOrderToPaid(request, pk):
 @permission_classes([IsAuthenticated])
 def getMyOrders(request):
     trainee_id = request.user.trainee.pk
-    obj = Trainee.objects.filter(_id=trainee_id).first()
-    order = obj.order_set.all()
+    order = Order.objects.filter(trainee___id=trainee_id).all()
     if order is None:
         return Response({'detail': 'Order does not exist'}, status=HTTP_404_NOT_FOUND)
     serializer = OrderSerializer(order, many=True)
@@ -126,18 +125,15 @@ def getMyOrders(request):
 @swagger_auto_schema(methods=['get'], responses={200: trainers_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getMyTrainers(request):
+def getMyTrainer(request):
     trainee_id = request.user.trainee.pk
-    obj = Order.objects.filter(trainee___id=trainee_id).values('trainer')
-    list_trainers = list(set([ i['trainer'] for i in obj ]))
-    for i in list_trainers:
-        trainer = Trainer.objects.filter().union(
-            Trainer.objects.filter(_id=i)
-        )
-        if obj is None:
-            return Response({'detail': 'Trainer does not exist'}, status=HTTP_404_NOT_FOUND)
-    serializer = TrainerSerializerWithName(trainer, many=True)
-    return Response(serializer.data)
+    obj = Order.objects.filter(trainee___id=trainee_id).first().trainer
+    trainer = Trainer.objects.filter(_id=obj.pk)
+    if obj is None:
+        return Response({'detail': 'Trainer does not exist'}, status=HTTP_404_NOT_FOUND)
+    else:
+        serializer = TrainerSerializerWithName(trainer, many=True)
+        return Response(serializer.data)
 
 
 

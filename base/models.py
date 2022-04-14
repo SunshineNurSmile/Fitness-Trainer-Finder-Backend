@@ -78,7 +78,13 @@ class Review(models.Model):
 
 
 class Order(models.Model):
-    trainee = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
+    trainee = models.OneToOneField(
+        'Trainee',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='order'
+    )
     trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
     paymentMethod = models.CharField(max_length=200, null=True, blank=True)
     taxPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
@@ -103,7 +109,13 @@ class Chat(models.Model):
 
 
 class Note(models.Model):
-    trainee = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
+    trainee = models.OneToOneField(
+        'Trainee',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='note'
+    )
     trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     _id = models.AutoField(primary_key=True, editable=False)

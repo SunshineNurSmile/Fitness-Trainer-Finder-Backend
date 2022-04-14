@@ -99,7 +99,7 @@ class TrainerSerializerWithName(serializers.ModelSerializer):
     class Meta:
         model = Trainer
         fields = ['name', 'avatar', 'image1', 'image2', 'image3', 'image4', 'image5', 'image6', 'training_style',
-                  'description', 'rating', 'dob', 'gender', 'numReviews', 'price', 'createdAt', '_id', 'reviews']
+                  'description', 'rating', 'dob', 'gender', 'numReviews', '_id', 'reviews']
 
     def get_name(self, obj):
         name = obj.user.first_name + ' ' + obj.user.last_name

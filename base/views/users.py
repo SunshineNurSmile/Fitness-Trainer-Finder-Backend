@@ -204,16 +204,13 @@ def updateTrainer(request, pk):
 @permission_classes([IsAuthenticated])
 def getMyTrainees(request):
     trainer_id = request.user.trainer.pk
-    obj = Order.objects.filter(trainer=trainer_id).values('trainee')
-    list_trainees = list(set([ i['trainee'] for i in obj ]))
-    for i in list_trainees:
-        trainee = Trainee.objects.filter().union(
-            Trainee.objects.filter(_id=i)
-        )
-        if obj is None:
-            return Response({'detail': 'Trainee does not exist'}, status=HTTP_404_NOT_FOUND)
+    obj = Order.objects.filter(trainer___id=trainer_id).values('trainee_id')
+    list_trainees = list(set([ i['trainee_id'] for i in obj]))
+    for i in range(len(list_trainees)):
+        t = Trainee.objects.filter(_id=i)
+        for j in list_trainees:
+            trainee = t.union(Trainee.objects.filter(_id=j))
     serializer = TraineeSerializerForOrder(trainee, many=True)
-
     return Response(serializer.data)
 
 
