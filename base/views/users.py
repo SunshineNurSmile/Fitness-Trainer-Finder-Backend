@@ -324,9 +324,9 @@ def sendMessage(request):
 @swagger_auto_schema(methods=['get'])
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def AllMessages(request):
+def AllMessages(request, userid):
     _id = request.user.id
-    re_id = request.data['receiver']
+    re_id = userid
     message = []
     # go and read all the message objects
     messages = Messages.objects.all().filter(sender=_id, receiver=re_id).order_by('created_at') | \
