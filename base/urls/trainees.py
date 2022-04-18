@@ -12,5 +12,6 @@ urlpatterns = [
     path('mytrainer/', order_views.getMyTrainer, name='my trainers'),
     path('createnote/', views.createNote, name='notes-add'),
     path('chat/get/', views.getTraineeChats, name='my chats'),
+    path('<str:pk>/', views.getTraineeById, name='traineeByid')
 
 ]

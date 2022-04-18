@@ -106,6 +106,15 @@ def getTrainee(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['get'], responses={200: user_trainee_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTraineeById(request, pk):
+    trainee = Trainee.objects.get(_id=pk)
+    serializer = TraineeSerializer(trainee, many=False)
+    return Response(serializer.data)
+
+
 @swagger_auto_schema(methods=['post'], request_body=TraineeSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
