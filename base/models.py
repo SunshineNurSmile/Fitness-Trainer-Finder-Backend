@@ -109,13 +109,7 @@ class Chat(models.Model):
 
 
 class Note(models.Model):
-    trainee = models.OneToOneField(
-        'Trainee',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name='note'
-    )
+    trainee = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
     trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     _id = models.AutoField(primary_key=True, editable=False)

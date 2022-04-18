@@ -18,7 +18,7 @@ from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 
 from ..serializers import TraineeSerializer, TrainerSerializer, UserSerializerWithToken, UserSerializerWithTrainee, \
-    UserSerializerWithTrainer, ChatSerializerForTrainee, ChatSerializer, NoteSerializer, TraineeSerializerForOrder, \
+    UserSerializerWithTrainer, ChatSerializerForTrainee, ChatSerializer, NoteSerializer, TraineeSerializerWithAvatar, \
     TrainerSerializerWithName, MessageSerializer
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)

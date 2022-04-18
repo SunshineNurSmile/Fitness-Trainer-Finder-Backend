@@ -78,7 +78,7 @@ class TraineeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TraineeSerializerForOrder(serializers.ModelSerializer):
+class TraineeSerializerWithAvatar(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:

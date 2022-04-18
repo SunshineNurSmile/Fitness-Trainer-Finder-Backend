@@ -13,7 +13,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from base.models import Trainee, Trainer, Review, Payment, File, Note
 from base.serializers import ReviewSerializer, TrainerSerializer, PaymentSerializer, ChatSerializer, NoteSerializer,\
-    TrainerSerializerWithName
+    TrainerSerializerWithName, TraineeSerializerWithAvatar
 
 param_keyword = openapi.Parameter('keyword', openapi.IN_QUERY, description="test manual param",
                                   type=openapi.TYPE_STRING)
