@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # from backend.base.models import UserProfile
-from .models import Order, Review, Trainer, Trainee, Chat, Payment, Note, File
+from .models import Order, Review, Trainer, Trainee, Chat, Payment, Note, Messages
 
 
 class UserSerializerWithTrainee(serializers.ModelSerializer):
@@ -131,6 +131,13 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = '__all__'
+
+
+class MessageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Messages
+        fields = ['sender', 'receiver', 'message', 'created_at']
 
 
 class ChatSerializer(serializers.ModelSerializer):

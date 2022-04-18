@@ -161,3 +161,9 @@ class File(models.Model):
     def __str__(self):
         return str(self.name)
 
+
+class Messages(models.Model):
+    sender = models.CharField(max_length=50, null=True, blank=True)
+    receiver = models.CharField(max_length=50, null=True, blank=True)
+    message = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)

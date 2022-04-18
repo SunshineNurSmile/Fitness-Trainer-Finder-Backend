@@ -12,13 +12,14 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 from rest_framework.status import *
 
-from ..models import Trainee, Trainer, Order, Chat, Note
+from ..models import Trainee, Trainer, Order, Chat, Note, Messages
 
 from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 
 from ..serializers import TraineeSerializer, TrainerSerializer, UserSerializerWithToken, UserSerializerWithTrainee, \
-    UserSerializerWithTrainer, ChatSerializerForTrainee, ChatSerializer, NoteSerializer, TraineeSerializerForOrder, TrainerSerializerWithName
+    UserSerializerWithTrainer, ChatSerializerForTrainee, ChatSerializer, NoteSerializer, TraineeSerializerForOrder, \
+    TrainerSerializerWithName, MessageSerializer
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 user_trainee_response = openapi.Response('response description', UserSerializerWithTrainee)
@@ -205,7 +206,7 @@ def updateTrainer(request, pk):
 def getMyTrainees(request):
     trainer_id = request.user.trainer.pk
     obj = Order.objects.filter(trainer___id=trainer_id).values('trainee_id')
-    list_trainees = list(set([ i['trainee_id'] for i in obj]))
+    list_trainees = list(set([i['trainee_id'] for i in obj]))
     for i in range(len(list_trainees)):
         t = Trainee.objects.filter(_id=i)
         for j in list_trainees:
@@ -296,5 +297,38 @@ def getTraineeChats(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['post'])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def sendMessage(request):
+    data = request.data
+    user = request.user.id
+    message = Messages.objects.create(
+        message=data['message'],
+        sender=user,
+        receiver=data['receiver']
+    )
+    serializer = MessageSerializer(message, many=False)
+    return Response(serializer.data)
 
+
+@swagger_auto_schema(methods=['get'])
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def AllMessages(request):
+    _id = request.user.id
+    re_id = request.data['receiver']
+    message = []
+    # go and read all the message objects
+    messages = Messages.objects.all().filter(sender=_id, receiver=re_id).order_by('created_at') | \
+               Messages.objects.all().filter(sender=re_id, receiver=_id).order_by('created_at')
+
+    all_messages = list(messages.values('message', 'sender'))
+    for i in all_messages:
+        if int(i['sender']) == _id:
+            message.append({'message': i['message'], 'isSender': True})
+        else:
+            message.append({'message': i['message'], 'isSender': False})
+
+    return Response(message)
 
