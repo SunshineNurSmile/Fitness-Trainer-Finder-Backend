@@ -219,8 +219,8 @@ def getMyTrainees(request):
     for i in range(len(list_trainees)):
         t = Trainee.objects.filter(_id=i)
         for j in list_trainees:
-            trainee = t.union(Trainee.objects.filter(_id=j))
-    serializer = TraineeSerializerWithAvatar(trainee, many=True)
+            t = t.union(Trainee.objects.filter(_id=j))
+    serializer = TraineeSerializerWithAvatar(t, many=True)
     return Response(serializer.data)
 
 
