@@ -193,12 +193,10 @@ def getMyNotes(request):
     obj = Trainer.objects.filter(_id=trainer_id).first()
     note = obj.note_set.all().values('trainee').distinct()
     list_trainees = list(set([i['trainee'] for i in note]))
-    for i in list_trainees:
-        t = Trainee.objects.filter(_id=i)
-        for j in list_trainees:
-            t = t.union(Trainee.objects.filter(_id=j))
 
-    serializer = TraineeSerializerWithAvatar(t, many=True)
+    trainee = Trainee.objects.filter(_id__in=list_trainees)
+
+    serializer = TraineeSerializerWithAvatar(trainee, many=True)
 
     if note is None:
         return Response({'detail': 'Note does not exist'}, status=HTTP_404_NOT_FOUND)

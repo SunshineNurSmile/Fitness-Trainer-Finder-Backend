@@ -216,12 +216,10 @@ def getMyTrainees(request):
     trainer_id = request.user.trainer.pk
     obj = Order.objects.filter(trainer___id=trainer_id).values('trainee_id')
     list_trainees = list(set([i['trainee_id'] for i in obj]))
-    for i in list_trainees:
-        t = Trainee.objects.filter(_id=i)
-        for j in list_trainees:
-            t = t.union(Trainee.objects.filter(_id=j))
 
-    serializer = TraineeSerializerWithAvatar(t, many=True)
+    trainee = Trainee.objects.filter(_id__in=list_trainees)
+
+    serializer = TraineeSerializerWithAvatar(trainee, many=True)
     return Response(serializer.data)
 
 
