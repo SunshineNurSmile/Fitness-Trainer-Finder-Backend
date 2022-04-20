@@ -209,7 +209,7 @@ def getMyNotes(request):
 def deleteMyNotes(request):
     trainer_id = request.user.trainer.pk
     trainee_id = request.data['trainee_id']
-    count = Note.objects.filter(trainer___id=trainer_id).filter(trainee=trainee_id).delete()
+    count = Note.objects.filter(trainer___id=trainer_id, trainee=trainee_id).delete()
     return Response({'message': 'Notification were deleted successfully!'}, status=HTTP_204_NO_CONTENT)
 
 
