@@ -203,14 +203,10 @@ class NoteSerializer(serializers.ModelSerializer):
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-    email = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Payment
-        fields = ['price1', 'price2', 'price3', 'description1', 'description2', 'description3', 'email']
-
-    def get_email(self, obj):
-        email = obj.trainer.user.email
-        return email
+        fields = ['price1', 'price2', 'price3', 'description1', 'description2', 'description3']
 
 
 class OrderSerializer(serializers.ModelSerializer):

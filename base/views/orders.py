@@ -69,8 +69,7 @@ def createOrder(request):
     order = Order.objects.create(
         trainee=trainee,
         trainer=trainer,
-        paymentMethod=data['paymentMethod'],
-        taxPrice=data['taxPrice'],
+        orderID=data['orderID'],
         totalPrice=data['totalPrice']
     )
     serializer = OrderSerializer(order, many=False)
