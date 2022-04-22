@@ -126,6 +126,20 @@ def getMyOrders(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['get'], responses={200: orders_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+# get the orders of trainees
+def getTrainerOrders(request):
+    trainer_id = request.user.trainer.pk
+    # get the order by the trainee_id
+    order = Order.objects.filter(trainer___id=trainer_id).all()
+    if order is None:
+        return Response({'detail': 'Order does not exist'}, status=HTTP_404_NOT_FOUND)
+    serializer = OrderSerializer(order, many=True)
+    return Response(serializer.data)
+
+
 @swagger_auto_schema(methods=['get'], responses={200: trainers_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
