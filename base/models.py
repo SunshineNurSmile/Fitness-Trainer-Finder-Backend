@@ -4,7 +4,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 
-
 # Create your models here.
 from backend import settings
 
@@ -89,11 +88,24 @@ class Order(models.Model):
     totalPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     isPaid = False
     createdAt = models.DateTimeField(auto_now_add=True)
+    endDate = models.DateTimeField(blank=True, null=True, default=date(1900, 1, 1))
     orderID = models.CharField(max_length=50, default='0000')
     _id = models.AutoField(primary_key=True, editable=False)
 
     def __str__(self):
         return str(self.createdAt)
+
+    def save(self, *args, **kwargs):
+        from datetime import datetime, timedelta
+        d1 = timedelta(days=7)
+        d2 = timedelta(days=30)
+
+        if float(self.totalPrice) == 0.00:
+            self.endDate = datetime.now() + d1
+            super(Order, self).save(*args, **kwargs)
+        else:
+            self.endDate = datetime.now() + d2
+            super(Order, self).save(*args, **kwargs)
 
 
 class Chat(models.Model):

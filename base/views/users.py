@@ -109,6 +109,7 @@ def getTrainee(request):
 @swagger_auto_schema(methods=['get'], responses={200: user_trainee_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+#
 def getTraineeById(request, pk):
     trainee = Trainee.objects.get(_id=pk)
     serializer = TraineeSerializer(trainee, many=False)

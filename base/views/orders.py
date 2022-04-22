@@ -10,6 +10,7 @@ from base.models import Order, Trainee, Trainer
 
 from base.serializers import OrderSerializer, TrainerSerializerWithName
 
+# the response on the swagger
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 order_response = openapi.Response('response description', OrderSerializer)
 orders_response = openapi.Response('response description', OrderSerializer(many=True))
@@ -78,16 +79,17 @@ def createOrder(request):
     #     return Response(status=HTTP_400_BAD_REQUEST)
 
 
-
 # TODO
 # include above data example to swagger API
 @swagger_auto_schema(methods=['get'], manual_parameters=[param_id], responses={200: order_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+# get the order by the order_id
 def getOrderById(request, pk):
     user = request.user
     try:
         order = Order.objects.get(_id=pk)
+        # admin user and authenticated user
         if user.is_staff or order.user == user:
             serializer = OrderSerializer(order, many=False)
             return Response(serializer.data)
@@ -101,6 +103,7 @@ def getOrderById(request, pk):
 @swagger_auto_schema(methods=['put'], manual_parameters=[param_id], responses={200: 'Order was paid'})
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
+# update the boolean field after the order have be paid
 def updateOrderToPaid(request, pk):
     order = Order.objects.get(_id=pk)
     order.isPaid = True
@@ -112,8 +115,10 @@ def updateOrderToPaid(request, pk):
 @swagger_auto_schema(methods=['get'], responses={200: orders_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+# get the orders of trainees
 def getMyOrders(request):
     trainee_id = request.user.trainee.pk
+    # get the order by the trainee_id
     order = Order.objects.filter(trainee___id=trainee_id).all()
     if order is None:
         return Response({'detail': 'Order does not exist'}, status=HTTP_404_NOT_FOUND)
@@ -124,6 +129,7 @@ def getMyOrders(request):
 @swagger_auto_schema(methods=['get'], responses={200: trainers_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+# get the trainer from the trainee's order
 def getMyTrainer(request):
     trainee_id = request.user.trainee.pk
     obj = Order.objects.filter(trainee___id=trainee_id).first().trainer

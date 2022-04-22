@@ -10,9 +10,4 @@ urlpatterns = [
     path('trainees/', include('base.urls.trainees')),
     path('trainers/', include('base.urls.trainers')),
 
-    # path('<str:pk>/', views.getUserById, name='user'),
-    #
-    # path('update/<str:pk>/', views.updateUser, name='user-update'),
-    #
-    # path('delete/<str:pk>/', views.deleteUser, name='user-delete'),
 ]
