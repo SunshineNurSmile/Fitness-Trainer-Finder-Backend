@@ -8,7 +8,7 @@ urlpatterns = [
     path('', users_views.getTrainer, name='trainer'), # get the information of trainer
     path('update/<str:pk>/', users_views.updateTrainer, name='trainer-update'),  # update the trainer
     path('create', users_views.createTrainer, name='trainer-create'),  # create the trainer after the user login
-    path('list', users_views.AllTrainersList.as_view(), name='trainers-list'),  # show the list of all trainers
+    path('list/', users_views.AllTrainersList.as_view(), name='trainers-list'),  # show the list of all trainers
 
     path('<str:pk>/reviews/', trainers_views.createTrainerReview, name="create-review"),
     path('top/', trainers_views.getTopTrainers, name='top-trainers'),
