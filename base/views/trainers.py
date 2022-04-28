@@ -289,7 +289,7 @@ def getIndex(request):
     # get the trainer from the token
     trainer_id = request.user.trainer.pk
     obj = File.objects.filter(trainer___id=trainer_id).values('name')
-    x = list(os.path.join('http://34.201.24.7/media', obj[i]['name']) for i in range(len(obj)))
+    x = list(os.path.join('http://35.227.26.131:8000/media', obj[i]['name']) for i in range(len(obj)))
     return Response(x)
 
 
@@ -323,5 +323,5 @@ def updatePayment(request):
 # get the video by the Trainer_id
 def getIndexByid(request, pk):
     obj = File.objects.filter(trainer___id=pk).values('name')
-    x = list(os.path.join('http://34.201.24.7/media', obj[i]['name']) for i in range(len(obj)))
+    x = list(os.path.join('http://35.227.26.131:8000/media', obj[i]['name']) for i in range(len(obj)))
     return Response(x)
