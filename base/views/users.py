@@ -12,19 +12,21 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 from rest_framework.status import *
 
-from ..models import Trainee, Trainer, Order, Chat, Note
+from ..models import Trainee, Trainer, Order, Chat, Note, Messages
 
 from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 
 from ..serializers import TraineeSerializer, TrainerSerializer, UserSerializerWithToken, UserSerializerWithTrainee, \
-    UserSerializerWithTrainer, ChatSerializer, NoteSerializer, TraineeSerializerForOrder, TrainerSerializerWithName
+    UserSerializerWithTrainer, ChatSerializerForTrainee, ChatSerializer, NoteSerializer, TraineeSerializerWithAvatar, \
+    TrainerSerializerWithName, MessageSerializer
 
 param_id = openapi.Parameter('id', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_STRING)
 user_trainee_response = openapi.Response('response description', UserSerializerWithTrainee)
 user_trainer_response = openapi.Response('response description', UserSerializerWithTrainer)
 trainee_response = openapi.Response('response description', TraineeSerializer)
 trainees_response = openapi.Response('response description', TraineeSerializer(many=True))
+chats_response = openapi.Response('response description', ChatSerializerForTrainee(many=True))
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -101,6 +103,16 @@ def registerUser(request):
 def getTrainee(request):
     user = request.user
     serializer = UserSerializerWithTrainee(user, many=False)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['get'], responses={200: user_trainee_response})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+#
+def getTraineeById(request, pk):
+    trainee = Trainee.objects.get(_id=pk)
+    serializer = TraineeSerializer(trainee, many=False)
     return Response(serializer.data)
 
 
@@ -203,16 +215,12 @@ def updateTrainer(request, pk):
 @permission_classes([IsAuthenticated])
 def getMyTrainees(request):
     trainer_id = request.user.trainer.pk
-    obj = Order.objects.filter(trainer=trainer_id).values('trainee')
-    list_trainees = list(set([ i['trainee'] for i in obj ]))
-    for i in list_trainees:
-        trainee = Trainee.objects.filter().union(
-            Trainee.objects.filter(_id=i)
-        )
-        if obj is None:
-            return Response({'detail': 'Trainee does not exist'}, status=HTTP_404_NOT_FOUND)
-    serializer = TraineeSerializerForOrder(trainee, many=True)
+    obj = Order.objects.filter(trainer___id=trainer_id).values('trainee_id')
+    list_trainees = list(set([i['trainee_id'] for i in obj]))
 
+    trainee = Trainee.objects.filter(_id__in=list_trainees)
+
+    serializer = TraineeSerializerWithAvatar(trainee, many=True)
     return Response(serializer.data)
 
 
@@ -267,23 +275,69 @@ def createNote(request):
 #     return Response('Notification Accepted!')
 
 
-@swagger_auto_schema(methods=['get'], responses={200: trainees_response})
+# @swagger_auto_schema(methods=['get'], responses={200: trainees_response})
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def getMyAcceptedTrainees(request):
+#     trainer_id = request.user.trainer.pk
+#     obj = Chat.objects.filter(trainer=trainer_id).values('trainee')
+#     list_trainees = list(set([ i['trainee'] for i in obj ]))
+#     for i in list_trainees:
+#         trainee = Trainee.objects.filter().union(
+#             Trainee.objects.filter(_id=i)
+#         )
+#         if obj is None:
+#             return Response({'detail': 'The Accepted trainee does not exist'}, status=HTTP_404_NOT_FOUND)
+#     serializer = TraineeSerializer(trainee, many=True)
+#
+#     return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['get'], responses={200: chats_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getMyAcceptedTrainees(request):
-    trainer_id = request.user.trainer.pk
-    obj = Chat.objects.filter(trainer=trainer_id).values('trainee')
-    list_trainees = list(set([ i['trainee'] for i in obj ]))
-    for i in list_trainees:
-        trainee = Trainee.objects.filter().union(
-            Trainee.objects.filter(_id=i)
-        )
-        if obj is None:
-            return Response({'detail': 'The Accepted trainee does not exist'}, status=HTTP_404_NOT_FOUND)
-    serializer = TraineeSerializer(trainee, many=True)
-
+def getTraineeChats(request):
+    trainee = request.user.trainee.pk
+    obj = Trainee.objects.filter(_id=trainee).first()
+    chat = obj.chat_set.all()
+    if chat is None:
+        return Response({'detail': 'Order does not exist'}, status=HTTP_404_NOT_FOUND)
+    serializer = ChatSerializerForTrainee(chat, many=True)
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['post'])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def sendMessage(request):
+    data = request.data
+    user = request.user.id
+    message = Messages.objects.create(
+        message=data['message'],
+        sender=user,
+        receiver=data['receiver']
+    )
+    serializer = MessageSerializer(message, many=False)
+    return Response(serializer.data)
 
+
+@swagger_auto_schema(methods=['get'])
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def AllMessages(request, userid):
+    _id = request.user.id
+    re_id = userid
+    message = []
+    # go and read all the message objects
+    messages = Messages.objects.all().filter(sender=_id, receiver=re_id).order_by('created_at') | \
+               Messages.objects.all().filter(sender=re_id, receiver=_id).order_by('created_at')
+
+    all_messages = list(messages.values('message', 'sender'))
+    for i in all_messages:
+        if int(i['sender']) == _id:
+            message.append({'message': i['message'], 'isSender': True})
+        else:
+            message.append({'message': i['message'], 'isSender': False})
+
+    return Response(message)
 

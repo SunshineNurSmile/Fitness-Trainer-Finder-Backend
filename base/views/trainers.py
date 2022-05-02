@@ -1,7 +1,6 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from backend.settings import MEDIA_ROOT
 
 from rest_framework.status import *
 import os
@@ -12,9 +11,9 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from base.models import Trainee, Trainer, Review, Payment, File
+from base.models import Trainee, Trainer, Review, Payment, File, Note
 from base.serializers import ReviewSerializer, TrainerSerializer, PaymentSerializer, ChatSerializer, NoteSerializer,\
-    TrainerSerializerWithName
+    TrainerSerializerWithName, TraineeSerializerWithAvatar
 
 param_keyword = openapi.Parameter('keyword', openapi.IN_QUERY, description="test manual param",
                                   type=openapi.TYPE_STRING)
@@ -24,10 +23,12 @@ trainer_response = openapi.Response('response description', TrainerSerializer)
 trainers_response = openapi.Response('response description', TrainerSerializer(many=True))
 payments_response = openapi.Response('response description', PaymentSerializer(many=True))
 chats_response = openapi.Response('response description', ChatSerializer(many=True))
+notes_response = openapi.Response('response description', NoteSerializer(many=True))
 
 
 @swagger_auto_schema(methods=['get'], manual_parameters=[param_keyword, param_page], responses={200: trainers_response})
 @api_view(['GET'])
+# get the information of trainer
 def getTrainers(request):
     query = request.query_params.get('keyword')
     if query is None:
@@ -59,6 +60,7 @@ def getTrainers(request):
 
 @swagger_auto_schema(methods=['get'], manual_parameters=[param_id], responses={200: trainer_response})
 @api_view(['GET'])
+# get the trainer by trainer_id (to get the user id)
 def getTrainerById(request, pk):
     trainer = Trainer.objects.get(_id=pk)
     serializer = TrainerSerializerWithName(trainer, many=False)
@@ -85,6 +87,7 @@ def uploadImage(request):
 @swagger_auto_schema(methods=['delete'], manual_parameters=[param_id])
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])
+# Delete the corresponding trainer
 def deleteTrainer(request, pk):
     trainer = Trainer.objects.get(_id=pk)
     trainer.delete()
@@ -94,6 +97,7 @@ def deleteTrainer(request, pk):
 @swagger_auto_schema(methods=['post'], manual_parameters=[param_id], request_body=ReviewSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+# create the review of the trainer
 def createTrainerReview(request, pk):
     data = request.data
     # to get trainee from access token
@@ -132,6 +136,7 @@ def createTrainerReview(request, pk):
 @permission_classes([IsAuthenticated])
 def createPayment(request):
     data = request.data
+    # get the trainer from the token
     trainer_id = request.user.trainer.pk
     trainer = Trainer.objects.get(_id=trainer_id)
 
@@ -153,6 +158,7 @@ def createPayment(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getMyPayment(request):
+    # get the trainer from the token
     trainer_id = request.user.trainer.pk
     payment = Payment.objects.get(trainer___id=trainer_id)
     if payment is None:
@@ -175,32 +181,54 @@ def getMyPaymentById(request, pk):
 @swagger_auto_schema(methods=['get'], responses={200: chats_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getMyChats(request):
+def getTrainerChats(request):
+    # get the trainer from the token
     trainer_id = request.user.trainer.pk
     obj = Trainer.objects.filter(_id=trainer_id).first()
-    chat = obj.chat_set.filter(isAccepted=True).all()
+    # get the chat of trainer
+    chat = obj.chat_set.all()
     if chat is None:
         return Response({'detail': 'Order does not exist'}, status=HTTP_404_NOT_FOUND)
     serializer = ChatSerializer(chat, many=True)
     return Response(serializer.data)
 
 
-@swagger_auto_schema(methods=['get'], responses={200: chats_response})
+@swagger_auto_schema(methods=['get'], responses={200: notes_response})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getMyNotes(request):
+    # get the trainer from the token
     trainer_id = request.user.trainer.pk
     obj = Trainer.objects.filter(_id=trainer_id).first()
-    note = obj.note_set.all()
+    # duplicate notes are displayed only once
+    note = obj.note_set.all().values('trainee').distinct()
+    list_trainees = list(set([i['trainee'] for i in note]))
+    # get the trainee in the list
+    trainee = Trainee.objects.filter(_id__in=list_trainees)
+
+    serializer = TraineeSerializerWithAvatar(trainee, many=True)
+
     if note is None:
         return Response({'detail': 'Note does not exist'}, status=HTTP_404_NOT_FOUND)
-    serializer = NoteSerializer(note, many=True)
     return Response(serializer.data)
+
+
+@swagger_auto_schema(methods=['delete'], responses={204: 'Notification deleted'})
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+# delete the note from trainer side
+def deleteMyNotes(request):
+    # get the trainer from the token
+    trainer_id = request.user.trainer.pk
+    trainee_id = request.data['trainee_id']
+    count = Note.objects.filter(trainer___id=trainer_id, trainee=trainee_id).delete()
+    return Response({'message': 'Notification were deleted successfully!'}, status=HTTP_204_NO_CONTENT)
 
 
 @swagger_auto_schema(methods=['post'])
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+# upload the video
 def index(request):
     file = request.FILES['file'].read()
     fileName = request.POST['filename']
@@ -256,17 +284,21 @@ def index(request):
 @swagger_auto_schema(methods=['get'])
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getindex(request):
+# get the video path
+def getIndex(request):
+    # get the trainer from the token
     trainer_id = request.user.trainer.pk
     obj = File.objects.filter(trainer___id=trainer_id).values('name')
-    x = list(os.path.join('http://127.0.0.1:8000/media', obj[i]['name']) for i in range(len(obj)))
+    x = list(os.path.join('http://35.227.26.131:8000/media', obj[i]['name']) for i in range(len(obj)))
     return Response(x)
 
 
 @swagger_auto_schema(methods=['put'], responses={201: 'Payment updated'})
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
+# update the payment
 def updatePayment(request):
+    # get the trainer from the token
     trainer_id = request.user.trainer.pk
     payment = Payment.objects.get(trainer___id=trainer_id)
 
@@ -284,10 +316,12 @@ def updatePayment(request):
     serializer = PaymentSerializer(payment, many=False)
     return Response(serializer.data)
 
+
 @swagger_auto_schema(methods=['get'])
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getindexByid(request, pk):
+# get the video by the Trainer_id
+def getIndexByid(request, pk):
     obj = File.objects.filter(trainer___id=pk).values('name')
-    x = list(os.path.join('http://127.0.0.1:8000/media', obj[i]['name']) for i in range(len(obj)))
+    x = list(os.path.join('http://35.227.26.131:8000/media', obj[i]['name']) for i in range(len(obj)))
     return Response(x)

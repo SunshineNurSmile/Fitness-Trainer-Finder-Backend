@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # from backend.base.models import UserProfile
-from .models import Order, Review, Trainer, Trainee, Chat, Payment, Note, File
+from .models import Order, Review, Trainer, Trainee, Chat, Payment, Note, Messages
 
 
 class UserSerializerWithTrainee(serializers.ModelSerializer):
@@ -78,7 +78,7 @@ class TraineeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TraineeSerializerForOrder(serializers.ModelSerializer):
+class TraineeSerializerWithAvatar(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -94,17 +94,28 @@ class TraineeSerializerForOrder(serializers.ModelSerializer):
 
 class TrainerSerializerWithName(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
+    reviews = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Trainer
         fields = ['name', 'avatar', 'image1', 'image2', 'image3', 'image4', 'image5', 'image6', 'training_style',
-                  'description', 'rating', 'dob', 'gender', 'numReviews', 'price', 'createdAt', '_id']
+                  'description', 'rating', 'dob', 'gender', 'numReviews', '_id', 'reviews', 'user_id']
 
     def get_name(self, obj):
         name = obj.user.first_name + ' ' + obj.user.last_name
         if name == '':
             name = obj.user.email
         return name
+
+    def get_reviews(self, obj):
+        # TODO review
+        reviews = obj.review_set.all()
+        serializer = ReviewSerializer(reviews, many=True)
+        return serializer.data
+
+    def get_id(self, obj):
+        user_id = obj.user.id
+        return user_id
 
 
 class TrainerSerializer(serializers.ModelSerializer):
@@ -127,6 +138,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class MessageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Messages
+        fields = ['sender', 'receiver', 'message', 'created_at']
+
+
 class ChatSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField(read_only=True)
     name = serializers.SerializerMethodField(read_only=True)
@@ -143,6 +161,25 @@ class ChatSerializer(serializers.ModelSerializer):
         name = obj.trainee.user.first_name + ' ' + obj.trainee.user.last_name
         if name == '':
             name = obj.trainee.user.email
+        return name
+
+
+class ChatSerializerForTrainee(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Chat
+        fields = ['avatar', 'name', 'trainer']
+
+    def get_avatar(self, obj):
+        avatar = obj.trainer.avatar
+        return avatar
+
+    def get_name(self, obj):
+        name = obj.trainer.user.first_name + ' ' + obj.trainer.user.last_name
+        if name == '':
+            name = obj.trainer.user.email
         return name
 
 
@@ -166,6 +203,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
 
 class PaymentSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Payment
         fields = ['price1', 'price2', 'price3', 'description1', 'description2', 'description3']

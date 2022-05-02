@@ -4,7 +4,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 
-
 # Create your models here.
 from backend import settings
 
@@ -55,8 +54,6 @@ class Trainer(models.Model):
     dob = models.DateField(default=date.today)
     gender = models.CharField(max_length=6, default="Male")
     numReviews = models.IntegerField(null=True, blank=True, default=0)
-    price = models.DecimalField(
-        max_digits=7, decimal_places=2, null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     _id = models.AutoField(primary_key=True, editable=False)
 
@@ -78,18 +75,35 @@ class Review(models.Model):
 
 
 class Order(models.Model):
-    trainee = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
+    trainee = models.OneToOneField(
+        'Trainee',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='order'
+    )
     trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
-    paymentMethod = models.CharField(max_length=200, null=True, blank=True)
-    taxPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     totalPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     isPaid = False
-    paidAt = models.DateTimeField(auto_now_add=False, null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
+    endDate = models.DateTimeField(blank=True, null=True, default=date(1900, 1, 1))
+    orderID = models.CharField(max_length=50, default='0000')
     _id = models.AutoField(primary_key=True, editable=False)
 
     def __str__(self):
         return str(self.createdAt)
+
+    def save(self, *args, **kwargs):
+        from datetime import datetime, timedelta
+        d1 = timedelta(days=7)
+        d2 = timedelta(days=30)
+
+        if float(self.totalPrice) == 0.00:
+            self.endDate = datetime.now() + d1
+            super(Order, self).save(*args, **kwargs)
+        else:
+            self.endDate = datetime.now() + d2
+            super(Order, self).save(*args, **kwargs)
 
 
 class Chat(models.Model):
@@ -149,3 +163,9 @@ class File(models.Model):
     def __str__(self):
         return str(self.name)
 
+
+class Messages(models.Model):
+    sender = models.CharField(max_length=50, null=True, blank=True)
+    receiver = models.CharField(max_length=50, null=True, blank=True)
+    message = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
