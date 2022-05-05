@@ -39,8 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # create Rest API
     'rest_framework',
+    # CORs is cross origin resource sharing
+    # to allow different origins (different located sources) to communicate
     "corsheaders",
+    # for swagger UI
     'drf_yasg',
 
     'base.apps.BaseConfig',
@@ -48,12 +52,18 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # to allow authentication session
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    # to communicate with token (authentification)
     'django.middleware.csrf.CsrfViewMiddleware',
+    # for auth
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # for error message
     'django.contrib.messages.middleware.MessageMiddleware',
+    # for protecting web service from malware
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # to allow different origins (different located sources) to communicate
     "corsheaders.middleware.CorsMiddleware",
 ]
 
