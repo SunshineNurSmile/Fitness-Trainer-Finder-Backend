@@ -1,6 +1,6 @@
 # FitnessApp
 
-## **Please do not push this main branch !!!!!!!**
+## **I contributed to some backend APIs and certain database optimizations**
 
 ### Setup
 
