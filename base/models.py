@@ -1,3 +1,6 @@
+### I designed and optimized the database, the implementation was done by the backend team ###
+
+
 from datetime import date
 
 from django.core.validators import MaxValueValidator, MinValueValidator
